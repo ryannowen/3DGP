@@ -14,18 +14,6 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 	int numOfCellsX{ argNumCellsX };
 	int numOfCellsZ{ argNumCellsZ };
 
-	unsigned char* heightData{ NULL };
-
-	if (argDisplacementMapPath != std::string())
-	{
-		if (texture.Load(argDisplacementMapPath))
-		{
-			numOfCellsX = texture.Width() - 1;
-			numOfCellsZ = texture.Height() - 1;
-			heightData = (unsigned char*)texture.GetData();
-		}
-	}
-
 	int numOfVertsX{ numOfCellsX + 1 };
 	int numOfVertsZ{ numOfCellsZ + 1 };
 
@@ -42,23 +30,15 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 	{
 		for (int x = 0; x < numOfVertsX; x++)
 		{
-			if (argDisplacementMapPath != std::string())
-				height = heightData[0];
-			else
-				height = 0.0f;
-
-			if (height < 0)
-				height = height;
-
-			terrainMesh.vertices.push_back(glm::vec3(worldPositionX + (x * vertexXSpacing), height, worldPositionZ + (-z * vertexZSpacing)));
-
+			terrainMesh.vertices.push_back(glm::vec3(worldPositionX + (x * vertexXSpacing), 0, worldPositionZ + (-z * vertexZSpacing)));
 
 			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfVertsX) * xTiling, z / static_cast<float>(numOfVertsZ) * zTiling));
 			terrainMesh.normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 
-			heightData += 4;
 		}
 	}
+
+	ApplyDisplacementMap(argDisplacementMapPath, numOfVertsX, numOfVertsZ);
 
 	/// Creates Diamond Grid Elements
 	bool diamondToggle{ true };
@@ -95,20 +75,64 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 		diamondToggle = !diamondToggle;
 	}
 
+	CalculateNormals();
+}
+
+void Terrain::CalculateNormals()
+{
 	/// Updates Vertex Normals
 	for (int i = 0; i < terrainMesh.elements.size(); i += 3)
 	{
 		glm::vec3 edge1{ terrainMesh.vertices[terrainMesh.elements[i + 1]] - terrainMesh.vertices[terrainMesh.elements[i]] };
 		glm::vec3 edge2{ terrainMesh.vertices[terrainMesh.elements[i + 2]] - terrainMesh.vertices[terrainMesh.elements[i]] };
 
-		glm::vec3 normal{ glm::cross(edge1, edge2) };
+		glm::vec3 normal{ glm::normalize(glm::cross(edge1, edge2)) };
 
 		terrainMesh.normals[terrainMesh.elements[i]] += normal;
 		terrainMesh.normals[terrainMesh.elements[i + 1]] += normal;
 		terrainMesh.normals[terrainMesh.elements[i + 2]] += normal;
 	}
 
-	for (glm::vec3& normal : terrainMesh.normals)
-		normal = glm::normalize(normal);
+	//for (glm::vec3& normal : terrainMesh.normals)
+		//normal = glm::normalize(normal);
+}
+
+void Terrain::ApplyDisplacementMap(const std::string& argDisplacementMapPath, const int argNumOfVertsX, const int argNumOfVertsZ)
+{
+	GLubyte* heightData{ NULL };
+
+	if (argDisplacementMapPath != std::string())
+	{
+		if (texture.Load(argDisplacementMapPath))
+		{
+			heightData = (GLubyte*)texture.GetData();
+
+			float vertXScale{ static_cast<float>(texture.Width()) / argNumOfVertsX};
+			float vertZScale{ static_cast<float>(texture.Height()) / argNumOfVertsZ };
+
+			size_t currentVert = 0;
+
+			for (int z = 0; z < argNumOfVertsZ; z++)
+			{
+				for (int x = 0; x < argNumOfVertsX; x++)
+				{
+					float imageX{ vertXScale * x };
+					float imageZ{ vertZScale * z };
+
+					size_t offset{ (static_cast<size_t>(imageX) + static_cast<size_t>(imageZ) * texture.Width()) * 4 };
+
+					terrainMesh.vertices[currentVert].y += heightData[offset];
+
+					currentVert += 1;
+				}
+			}
+
+			CalculateNormals();
+		}
+	}
+}
+
+void Terrain::Draw() const
+{
 }
 

@@ -67,7 +67,7 @@ bool Renderer::InitialiseGeometry()
 	// "Data\\curvy.gif"
 	Terrain terrainInformation[]
 	{
-		Terrain(500, 500, 3000, 3000, 50, 50, "Data\\Models\\Grass.jpg", "Data\\curvy.gif", glm::mat4(1,0,0,0,/**/0,1,0,0,/**/0,0,1,0,/**/0,-100.0f,0,1))
+		Terrain(256, 256, 3000, 3000, 50, 50, "Data\\Models\\Grass.jpg", "Data\\curvy.gif", glm::mat4(1,0,0,0,/**/0,1,0,0,/**/0,0,1,0,/**/0,-100.0f,0,1))
 	};
 
 	/// Loads Models
