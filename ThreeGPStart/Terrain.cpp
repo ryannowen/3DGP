@@ -34,7 +34,6 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 
 			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfVertsX) * xTiling, z / static_cast<float>(numOfVertsZ) * zTiling));
 			terrainMesh.normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-
 		}
 	}
 
