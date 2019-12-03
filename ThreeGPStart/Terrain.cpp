@@ -130,8 +130,3 @@ void Terrain::ApplyDisplacementMap(const std::string& argDisplacementMapPath, co
 		}
 	}
 }
-
-void Terrain::Draw() const
-{
-}
-

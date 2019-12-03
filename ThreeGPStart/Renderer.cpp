@@ -67,7 +67,7 @@ bool Renderer::InitialiseGeometry()
 	// "Data\\curvy.gif"
 	Terrain terrainInformation[]
 	{
-		Terrain(256, 256, 3000, 3000, 50, 50, "Data\\Models\\Grass.jpg", "Data\\curvy.gif", glm::mat4(1,0,0,0,/**/0,1,0,0,/**/0,0,1,0,/**/0,-100.0f,0,1))
+		Terrain(512, 512, 3000, 3000, 50, 50, "Data\\Models\\Grass.jpg", "Data\\curvy.gif", glm::mat4(1,0,0,0,/**/0,1,0,0,/**/0,0,1,0,/**/0,-100.0f,0,1))
 	};
 
 	/// Loads Models
@@ -310,12 +310,7 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	/// Binds and Draws VAO
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		if (i == 2)
-			std::cout << std::endl;
-
 		glm::mat4 model_xform = glm::mat4(1);
-
-
 
 		for (const MeshData& subMesh : meshes[i].subMeshs)
 		{

@@ -4,6 +4,6 @@
 class Skybox : public Model
 {
 
-	virtual void Draw() const override final;
+	virtual void Draw(GLuint argProgram, Helpers::Camera& argCamera) const override final;
 };
 

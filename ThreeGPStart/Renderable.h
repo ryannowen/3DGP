@@ -2,6 +2,8 @@
 
 #include "Transform.h"
 
+#include "Camera.h"
+
 class Renderable
 {
 public:
@@ -11,7 +13,7 @@ public:
 	Transform currentTransform;
 	Transform oldTransform;
 
-	virtual void Draw() const = 0;
+	virtual void Draw(GLuint argProgram, Helpers::Camera& argCamera) const = 0;
 
 };
 
