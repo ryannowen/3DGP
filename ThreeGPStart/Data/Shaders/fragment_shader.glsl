@@ -25,7 +25,7 @@ out vec4 fragment_colour;
 uniform mat4 model_xform;
 uniform sampler2D texSample;
 uniform vec3 camera_direction;
-uniform int numOfLights;
+uniform int lightID;
 uniform LightData lights[3];
 
 void main(void)
@@ -40,7 +40,7 @@ void main(void)
 
 	fragment_colour += vec4(ambient_colour * vec3(1), 1);
 
-	for(int i = 0; i < numOfLights; i++)
+	for(int i = 0; i < lightID; i++)
 	{
 		vec3 L;
 		float attenuation = 1.0;
@@ -79,4 +79,6 @@ void main(void)
 
 		//fragment_colour = vec4(varying_normal, 1.0);
 	}
+
+	//fragment_colour = diffuse_colour;
 }

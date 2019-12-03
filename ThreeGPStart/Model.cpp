@@ -39,7 +39,7 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform 
 	{
 		glm::mat4 model_xform = glm::mat4(1);
 
-		Transform newTransform = currentTransform + argParentTransform;
+		/*Transform newTransform = currentTransform + argParentTransform;
 
 
 		model_xform = glm::translate(model_xform, newTransform.GetPosition());
@@ -48,7 +48,7 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform 
 		model_xform = glm::rotate(model_xform, newTransform.GetRotation().y, glm::vec3(0, 1, 0));
 		model_xform = glm::rotate(model_xform, newTransform.GetRotation().z, glm::vec3(0, 0, 1));
 
-		model_xform = glm::scale(model_xform, newTransform.GetScale());
+		model_xform = glm::scale(model_xform, newTransform.GetScale());*/
 
 
 		glActiveTexture(GL_TEXTURE0);
@@ -81,16 +81,6 @@ void Model::LoadMesh(const std::string& argModelPath)
 		std::cerr << "ERROR: Couldn't load Model from file path, path = " << argModelPath << std::endl;
 		return;
 	}
-
-	/*for (Helpers::Mesh mesh : meshes.GetMeshVector())
-	{
-		CreateGeometry(mesh);
-	}
-
-	for (Helpers::Material material : meshes.GetMaterialVector())
-	{
-		CreateTexture(material);
-	}*/
 
 	for (int i = 0; i < meshes.GetMeshVector().size(); i++)
 	{
@@ -143,7 +133,6 @@ void Model::CreateGeometry(const Helpers::Mesh& argMesh)
 	glBindBuffer(GL_ARRAY_BUFFER, uvVBO);
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
 
 
 	/// Binds Elements

@@ -1,5 +1,11 @@
 #include "Skybox.h"
 
+Skybox::Skybox(const Transform& argTransform, const bool argHasLighting)
+	:	Model(argTransform, argHasLighting)
+{
+
+}
+
 void Skybox::Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform argParentTransform) const
 {
 	glDepthMask(GL_FALSE);

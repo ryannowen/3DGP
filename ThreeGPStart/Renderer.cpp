@@ -4,6 +4,7 @@
 #include "Terrain.h"
 
 #include "Light.h"
+#include "Skybox.h";
 
 
 // On exit must clean up any OpenGL resources e.g. the program, the buffers
@@ -53,7 +54,7 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateProgram())
 		return false;
 
-	std::vector<Light>* lightData = new std::vector<Light>
+	std::vector<Light> lightData
 	{
 		/// Type, Position, Direction, FOV, Colour, Range, Intensity
 		/*{ELightType::ePoint, Transform(glm::vec3(0, 100, 0), glm::vec3(0, 0, 0)), 0.0f, glm::vec3(0, 0, 1), 200, 10.0f},
@@ -61,22 +62,23 @@ bool Renderer::InitialiseGeometry()
 		{ELightType::eDirectional, Transform(glm::vec3(0, 500, 0), glm::vec3(1, -1, 0)), 0.0f, glm::vec3(1, 1, 1), 0, 0.80f},
 	};
 
-	for (Light& light : *lightData)
-		meshes.push_back(&light);
-
-	Light::numOfLights++;
-
+	for (const Light& light : lightData)
+	{
+		Light* newLight = new Light();
+		*newLight = light;
+		meshes.push_back(newLight);
+	}
 
 	MeshLoadData modelInfomation[]
 	{
-		//MeshLoadData("Data\\Sky\\Hills\\skybox.x", -1, Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.003f, 0.003f, 0.003f))),
-		/*MeshLoadData("Data\\Models\\AquaPig\\hull.obj", -1, Transform(glm::vec3(150, 0, 0), glm::vec3(0, 90, 0), glm::vec3(30, 30, 30))),
-			MeshLoadData("Data\\Models\\AquaPig\\wing_right.obj", 1, Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			MeshLoadData("Data\\Models\\AquaPig\\wing_left.obj", 1, Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
+		MeshLoadData(EMeshType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.003f, 0.003f, 0.003f))),
+		MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>(2), Transform(glm::vec3(150, 0, 0), glm::vec3(0, 90, 0), glm::vec3(30, 30, 30))),
+			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			/*MeshLoadData("Data\\Models\\AquaPig\\wing_left.obj", 1, Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
 			/*MeshLoadData("Data\\Models\\AquaPig\\propeller.obj", 1, Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			MeshLoadData("Data\\Models\\AquaPig\\gun_base.obj", 1, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 				MeshLoadData("Data\\Models\\AquaPig\\gun.obj", 5, Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
-		MeshLoadData("Data\\Models\\Jeep\\jeep.obj", -1, Transform(glm::vec3(-150, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.25, 0.25, 0.25)))
+		MeshLoadData(EMeshType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>(), Transform(glm::vec3(-150, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.25, 0.25, 0.25)))
 	};
 
 	// "Data\\3gp_heightmap.bmp"
@@ -89,8 +91,26 @@ bool Renderer::InitialiseGeometry()
 	/// Loads Models
 	for (MeshLoadData& MeshInfo : modelInfomation)
 	{
-		meshes.push_back(new Model(MeshInfo.relativeTransform));
-		static_cast<Model*>(meshes.back())->LoadMesh(MeshInfo.meshPath);
+		if (!MeshInfo.isCreated)
+		{
+			MeshInfo.isCreated = true;
+
+			switch (MeshInfo.meshType)
+			{
+			case EMeshType::eSkybox:
+				meshes.push_back(new Skybox(MeshInfo.relativeTransform));
+				break;
+
+			case EMeshType::eModel:
+				meshes.push_back(new Model(MeshInfo.relativeTransform));
+				break;
+
+			default:
+				break;
+			}
+
+			static_cast<Model*>(meshes.back())->LoadMesh(MeshInfo.meshPath);
+		}
 	}
 
 	/// Loads Terrains

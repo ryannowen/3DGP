@@ -14,15 +14,23 @@
 
 class Terrain;
 
+enum class EMeshType
+{
+	eSkybox,
+	eModel
+};
+
 struct MeshLoadData
 {
-	MeshLoadData(const std::string& argMeshPath, const int argMeshParentID, const Transform argRelativeTransform)
-		: meshPath(argMeshPath), meshParentID(argMeshParentID), relativeTransform(argRelativeTransform)
+	MeshLoadData(const EMeshType argMeshType, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
+		: meshType(argMeshType), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
 	{}
 
+	EMeshType meshType;
 	std::string meshPath;
-	int meshParentID;
+	std::vector<int> childrenIDs;
 	Transform relativeTransform;
+	bool isCreated{ false };
 };
 
 class Renderer
@@ -35,6 +43,7 @@ private:
 	GLuint m_program{ 0 };
 
 	bool CreateProgram();
+
 public:
 	Renderer()=default;
 	~Renderer();
