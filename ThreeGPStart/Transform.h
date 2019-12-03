@@ -19,11 +19,24 @@ public:
 	glm::vec3 GetPosition() const { return position; }
 
 	void SetRotation(glm::vec3 argNewRotation) { rotation = argNewRotation; }
-	void AddRotation(glm::vec3 argDirection, glm::vec3 argAngle) { rotation += (argAngle * argDirection); }
+	void AddRotation(glm::vec3 argAngle) { rotation += argAngle; }
 	glm::vec3 GetRotation() const { return rotation; }
 
 	void SetScale(glm::vec3 argNewScale) { scale = argNewScale; }
 	void AddScale(glm::vec3 argScale) { scale += argScale; }
 	glm::vec3 GetScale() const { return scale; }
+
+	inline void operator+=(const Transform& argTrans)
+	{
+		position += argTrans.position;
+		rotation += argTrans.rotation;
+		scale += argTrans.scale;
+	}
 };
 
+inline Transform operator+(Transform lhs, const Transform& rhs)
+{
+	lhs += rhs;
+
+	return lhs;
+}

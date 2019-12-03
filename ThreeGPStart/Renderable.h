@@ -6,14 +6,15 @@
 
 class Renderable
 {
-public:
-	Renderable();
-
-	bool disabled;
+protected:
+	bool disabled{ false };
 	Transform currentTransform;
 	Transform oldTransform;
 
-	virtual void Draw(GLuint argProgram, Helpers::Camera& argCamera) const = 0;
+public:
+	Renderable(Transform argTransform);
+
+	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform argParentTransform) const = 0;
 
 };
 

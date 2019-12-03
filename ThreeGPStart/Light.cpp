@@ -9,18 +9,25 @@ void Light::SendNumOfLights(GLuint argProgram)
 	glUniform1i(numOfLights_id, numOfLights);
 }
 
-void Light::Draw(GLuint argProgram, Helpers::Camera& argCamera) const
+Light::Light(const ELightType argLightType, const Transform argTransform, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
+	:	Renderable(argTransform), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
+{
+}
+
+void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform argParentTransform) const
 {
 	numOfLights++;
+
+	Transform newTransform{ currentTransform + argParentTransform };
 
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
 
 	GLuint light_position_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_position").c_str());
-	glUniform3fv(light_position_id, 1, glm::value_ptr(currentTransform.GetPosition()));
+	glUniform3fv(light_position_id, 1, glm::value_ptr(newTransform.GetPosition()));
 
 	GLuint light_direction_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_direction").c_str());
-	glUniform3fv(light_direction_id, 1, glm::value_ptr(currentTransform.GetRotation()));
+	glUniform3fv(light_direction_id, 1, glm::value_ptr(newTransform.GetRotation()));
 
 	GLuint light_fov_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_fov").c_str());
 	glUniform1f(light_fov_id, light_fov);

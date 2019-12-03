@@ -29,20 +29,20 @@ bool Simulation::HandleInput(GLFWwindow* window)
 
 	int x{ 0 }, y{ 0 }, z{ 0 };
 
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) // Right
-		x = 10;
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // Left
-		x = -10;
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) // Up
-		y = -10;
-	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) // Down
-		y = 10;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) // Forward
-		z = -10;
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
-		z = 10;
+	//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) // Right
+	//	x = 10;
+	//else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // Left
+	//	x = -10;
+	//if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) // Up
+	//	y = -10;
+	//else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) // Down
+	//	y = 10;
+	//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) // Forward
+	//	z = -10;
+	//else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
+	//	z = 10;
 
-	m_renderer->lights[0].light_position += glm::vec3(x, y, z);
+	//m_renderer->lights[0].light_position += glm::vec3(x, y, z);
 
 	// int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
