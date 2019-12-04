@@ -14,7 +14,7 @@ protected:
 public:
 	Renderable(Transform argTransform);
 
-	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, Transform argParentTransform) const = 0;
+	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argView_Xform, glm::mat4 argParentTransform) const = 0;
 
 };
 

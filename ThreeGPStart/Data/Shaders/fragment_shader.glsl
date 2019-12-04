@@ -1,6 +1,6 @@
 #version 330
 
-struct LightData
+struct SLightData
 {
 	// Types
 	// 0 = Directional
@@ -16,6 +16,13 @@ struct LightData
 	float light_intensity;
 };
 
+struct SMaterial
+{
+	vec3 ambient_Colour;
+	vec3 specular_Colour;
+	float specular_Intensity;
+};
+
 in vec3 varying_position;
 in vec2 varying_uv;
 in vec3 varying_normal;
@@ -25,59 +32,70 @@ out vec4 fragment_colour;
 uniform mat4 model_xform;
 uniform sampler2D texSample;
 uniform vec3 camera_direction;
-uniform int lightID;
-uniform LightData lights[3];
+
+uniform SMaterial material;
+
+uniform bool hasLighting;
+uniform int numOfLights;
+uniform SLightData lights[3];
 
 void main(void)
 {
-	vec3 ambient_colour = vec3(0.05);
-	float specular_intensity = 60;
+	vec3 ambient_colour = max(vec3(0.03), material.ambient_Colour);
+	vec3 specular_Colour = material.specular_Colour;
+	float specular_intensity = material.specular_Intensity;
 	vec4 diffuse_colour = texture(texSample, varying_uv);
 
 	vec3 N = normalize(varying_normal);
 	vec3 P = varying_position;
 
-
-	fragment_colour += vec4(ambient_colour * vec3(1), 1);
-
-	for(int i = 0; i < lightID; i++)
+	if (hasLighting)
 	{
-		vec3 L;
-		float attenuation = 1.0;
+		fragment_colour += vec4(ambient_colour * diffuse_colour.rgb, 1);
 
-		if(lights[i].light_type != 0) // Not a Directional Light
+		for (int i = 0; i < numOfLights; i++)
 		{
-			L = normalize(lights[i].light_position - P);
+			vec3 L;
+			float attenuation = 1.0;
 
-			// Attenuation
-			float light_distance = distance(lights[i].light_position, P);
-			attenuation = 1.0 - smoothstep(0, lights[i].light_range, light_distance);
+			if (lights[i].light_type != 0) // Not a Directional Light
+			{
+				L = normalize(lights[i].light_position - P);
+
+				// Attenuation
+				float light_distance = distance(lights[i].light_position, P);
+				attenuation = 1.0 - smoothstep(0, lights[i].light_range, light_distance);
+			}
+			else // Directional Light
+			{
+				L = normalize(-lights[i].light_direction);
+			}
+
+
+			// Diffuse
+			vec3 diffuse_intensity = max(vec3(0.0), dot(L, N));
+			diffuse_intensity *= max(vec3(0.1), lights[i].light_colour) * max(0.01, lights[i].light_intensity);
+
+			// Specular
+			vec3 rV = reflect(L, N);
+			float LR = max(0, dot(camera_direction, rV));
+			vec3 specular = specular_Colour * pow(LR, specular_intensity);
+
+			if (lights[i].light_type == 2) // Spot light
+			{
+				attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(L, -lights[i].light_direction));
+			}
+
+
+			// Final Calculation
+			fragment_colour += vec4(((diffuse_colour.rgb + specular) * diffuse_intensity * attenuation), 0.0);
+
+			//fragment_colour = vec4(varying_normal, 1.0);
 		}
-		else // Directional Light
-		{
-			L = normalize(-lights[i].light_direction);
-		}
-
-
-		// Diffuse
-		vec3 diffuse_intensity = max(vec3(0.0), dot(L, N));
-		diffuse_intensity *= max(vec3(0.1), lights[i].light_colour) * max(0.01, lights[i].light_intensity);
-
-		// Specular
-		vec3 rV = reflect(L, N);
-		float LR = max(0, dot(camera_direction, rV));
-		vec3 specular = diffuse_colour.rgb * pow(LR, specular_intensity);
-
-		if(lights[i].light_type == 2) // Spot light
-		{
-			attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(L, -lights[i].light_direction));
-		}
-
-
-		// Final Calculation
-		fragment_colour += vec4(((diffuse_colour.rgb + specular) * diffuse_intensity * attenuation), 0.0);
-
-		//fragment_colour = vec4(varying_normal, 1.0);
+	}
+	else
+	{
+		fragment_colour = diffuse_colour;
 	}
 
 	//fragment_colour = diffuse_colour;

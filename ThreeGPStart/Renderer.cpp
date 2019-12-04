@@ -4,7 +4,7 @@
 #include "Terrain.h"
 
 #include "Light.h"
-#include "Skybox.h";
+#include "Skybox.h"
 
 
 // On exit must clean up any OpenGL resources e.g. the program, the buffers
@@ -13,6 +13,7 @@ Renderer::~Renderer()
 	glDeleteProgram(m_program);
 //	glDeleteBuffers(1, &m_VAO);
 }
+
 
 // Load, compile and link the shaders and create a program object to host them
 bool Renderer::CreateProgram()
@@ -47,6 +48,35 @@ bool Renderer::CreateProgram()
 	return !Helpers::CheckForGLError();
 }
 
+void Renderer::CreateMesh(MeshLoadData& argLoadData, std::vector<Renderable*>& argMeshLocation)
+{
+	argLoadData.isCreated = true;
+
+	switch (argLoadData.meshType)
+	{
+	case EMeshType::eSkybox:
+			
+		argMeshLocation.push_back(new Skybox(argLoadData.relativeTransform));
+		break;
+
+	case EMeshType::eModel:
+		argMeshLocation.push_back(new Model(argLoadData.relativeTransform));
+		break;
+
+	default:
+		break;
+	}
+
+	Model* model{ static_cast<Model*>(argMeshLocation.back()) };
+	model->LoadMesh(argLoadData.meshPath);
+
+	for (int i = 0; i < argLoadData.childrenIDs.size(); i++)
+	{
+		CreateMesh(modelInfomation[argLoadData.childrenIDs[i]], model->children);
+	}
+
+}
+
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
 {
@@ -57,9 +87,9 @@ bool Renderer::InitialiseGeometry()
 	std::vector<Light> lightData
 	{
 		/// Type, Position, Direction, FOV, Colour, Range, Intensity
-		/*{ELightType::ePoint, Transform(glm::vec3(0, 100, 0), glm::vec3(0, 0, 0)), 0.0f, glm::vec3(0, 0, 1), 200, 10.0f},
-		{ELightType::eSpot, Transform(glm::vec3(-100, 100, 0), glm::vec3(0, -1, 0)), 5.0f, glm::vec3(1, 0, 0), 350, 10.0f},*/
-		{ELightType::eDirectional, Transform(glm::vec3(0, 500, 0), glm::vec3(1, -1, 0)), 0.0f, glm::vec3(1, 1, 1), 0, 0.80f},
+		//Light(ELightType::ePoint, Transform(glm::vec3(0, 100, 0), glm::vec3(0, 0, 0)), 0.0f, glm::vec3(0, 0, 1), 200, 10.0f),
+		//Light(ELightType::eSpot, Transform(glm::vec3(0, 10, 0), glm::vec3(0, -1, 0)), 5.0f, glm::vec3(1, 0, 0), 350, 10.0),
+		Light(ELightType::eDirectional, Transform(glm::vec3(0, 500, 0), glm::vec3(1, -1, 1)), 0.0f, glm::vec3(1, 1, 1), 0, 1.80f)
 	};
 
 	for (const Light& light : lightData)
@@ -67,60 +97,33 @@ bool Renderer::InitialiseGeometry()
 		Light* newLight = new Light();
 		*newLight = light;
 		meshes.push_back(newLight);
+		Light::numOfLights++;
 	}
 
-	MeshLoadData modelInfomation[]
+
+
+
+	/// Loads Models
+	for (MeshLoadData& data : modelInfomation)
 	{
-		MeshLoadData(EMeshType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.003f, 0.003f, 0.003f))),
-		MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>(2), Transform(glm::vec3(150, 0, 0), glm::vec3(0, 90, 0), glm::vec3(30, 30, 30))),
-			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			/*MeshLoadData("Data\\Models\\AquaPig\\wing_left.obj", 1, Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
-			/*MeshLoadData("Data\\Models\\AquaPig\\propeller.obj", 1, Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			MeshLoadData("Data\\Models\\AquaPig\\gun_base.obj", 1, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-				MeshLoadData("Data\\Models\\AquaPig\\gun.obj", 5, Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
-		MeshLoadData(EMeshType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>(), Transform(glm::vec3(-150, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.25, 0.25, 0.25)))
-	};
+		if (!data.isCreated)
+		{
+			CreateMesh(data, meshes);
+		}
+	}
 
 	// "Data\\3gp_heightmap.bmp"
 	// "Data\\curvy.gif"
-	Terrain terrainInformation[]
+	std::vector<Terrain> terrainInformation
 	{
 		Terrain(256, 256, 3000, 3000, 50, 50, "Data\\Models\\Grass.jpg", "Data\\curvy.gif", glm::mat4(1,0,0,0,/**/0,1,0,0,/**/0,0,1,0,/**/0,-100.0f,0,1))
 	};
 
-	/// Loads Models
-	for (MeshLoadData& MeshInfo : modelInfomation)
-	{
-		if (!MeshInfo.isCreated)
-		{
-			MeshInfo.isCreated = true;
-
-			switch (MeshInfo.meshType)
-			{
-			case EMeshType::eSkybox:
-				meshes.push_back(new Skybox(MeshInfo.relativeTransform));
-				break;
-
-			case EMeshType::eModel:
-				meshes.push_back(new Model(MeshInfo.relativeTransform));
-				break;
-
-			default:
-				break;
-			}
-
-			static_cast<Model*>(meshes.back())->LoadMesh(MeshInfo.meshPath);
-		}
-	}
-
 	/// Loads Terrains
 	/*for (Terrain& terrain : terrainInformation)
 	{
-		meshes.push_back(&terrain);
+		meshes.push_back(newTerrain);
 	}*/
-
-
-
 
 	return true;
 }
@@ -143,6 +146,14 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	GLuint camera_direcion_id = glGetUniformLocation(m_program, "camera_direction");
 	glUniform3fv(camera_direcion_id, 1, glm::value_ptr(camera.GetLookVector()));
 
+	/// Creates and Gets Viewport size
+	GLint viewportDimensions[4];
+	glGetIntegerv(GL_VIEWPORT, viewportDimensions);
+
+	/// Creates viewport Projection Matrix
+	float aspectRatio = viewportDimensions[2] / static_cast<float>(viewportDimensions[3]);
+	float nearPlane{ 1.0f }, farPlane{ 12000.0f };
+	glm::mat4 projection_xform = glm::perspective(glm::radians(45.0f), aspectRatio, nearPlane, farPlane);
 
 	Light::SendNumOfLights(m_program);
 
@@ -150,10 +161,8 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	/// Binds and Draws VAO
 	for (const Renderable* renderable : meshes)
 	{
-		renderable->Draw(m_program, camera, Transform());
+		renderable->Draw(m_program, camera, projection_xform, glm::mat4(1));
 	}
-
-
 
 	// Always a good idea, when debugging at least, to check for GL errors
 	Helpers::CheckForGLError();

@@ -13,8 +13,6 @@ public:
 	float specular_Intensity;
 	GLuint textureRef;
 
-
-	
-	//void ApplyMaterial();
+	void ApplyMaterial(GLuint argProgram) const;
 };
 
