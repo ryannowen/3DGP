@@ -44,10 +44,11 @@ void main(void)
 	vec3 ambient_colour = max(vec3(0.03), material.ambient_Colour);
 	vec3 specular_Colour = material.specular_Colour;
 	float specular_intensity = material.specular_Intensity;
-	vec4 diffuse_colour = texture(texSample, varying_uv);
+	vec4 diffuse_colour = max(vec4(0.1), texture(texSample, varying_uv));
 
 	vec3 N = normalize(varying_normal);
 	vec3 P = varying_position;
+
 
 	fragment_colour += diffuse_colour;
 
@@ -96,6 +97,8 @@ void main(void)
 			// Final Calculation
 			fragment_colour += vec4(((diffuse_colour.rgb + specular) * diffuse_intensity * attenuation), 0.0);
 		}
+
+
 	}
 
 	//fragment_colour = vec4(varying_normal, 1.0);
