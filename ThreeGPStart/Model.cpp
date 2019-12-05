@@ -7,6 +7,12 @@ Model::Model(const Transform& argTransform, const bool argHasLighting)
 {
 }
 
+Model::~Model()
+{
+	for (Renderable* renderable : children)
+		delete renderable;
+}
+
 void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const
 {		
 	/// Creates View Matrix for camera
@@ -28,19 +34,17 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	/// Create model xform ID for when sending model data
 	GLuint model_xform_id = glGetUniformLocation(argProgram, "model_xform");
 
-
 	for (const SModelData& mesh : subMeshes)
 	{
 		mesh.material.ApplyMaterial(argProgram);
 
 		argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
 
-		argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().x, glm::vec3(1, 0, 0));
-		//argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().y, glm::vec3(0, 1, 0));
-		//argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().z, glm::vec3(0, 0, 1));
+		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
+		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
+		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
 
 		argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
-
 
 		/// Sends model transformation info as uniform to shader
 		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(argParentTransform));
@@ -59,18 +63,18 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 
 void Model::LoadMesh(const std::string& argModelPath)
 {
-	Helpers::ModelLoader meshes;
+	Helpers::ModelLoader renderables;
 
-	if (!meshes.LoadFromFile(argModelPath))
+	if (!renderables.LoadFromFile(argModelPath))
 	{
 		std::cerr << "ERROR: Couldn't load Model from file path, path = " << argModelPath << std::endl;
 		return;
 	}
 
-	for (int i = 0; i < meshes.GetMeshVector().size(); i++)
+	for (int i = 0; i < renderables.GetMeshVector().size(); i++)
 	{
-		CreateGeometry(meshes.GetMeshVector()[i]);
-		CreateTexture(meshes.GetMaterialVector()[i]);
+		CreateGeometry(renderables.GetMeshVector()[i]);
+		CreateTexture(renderables.GetMaterialVector()[i]);
 	}
 }
 

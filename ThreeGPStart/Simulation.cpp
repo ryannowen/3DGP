@@ -42,6 +42,9 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	//else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
 	//	z = 10;
 
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		static_cast<Model*>(m_renderer->renderables[2])->currentTransform.AddRotation(glm::vec3(0, 90, 0));
+
 	//m_renderer->lights[0].light_position += glm::vec3(x, y, z);
 
 	// int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);

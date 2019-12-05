@@ -1,12 +1,10 @@
 #include "Terrain.h"
 
-Terrain::Terrain(const int argNumCellsX, const int argNumCellsZ, const float argSizeX, const float argSizeZ, const int argTextureTilingX, const int argTextureTilingZ, const std::string& argTextureFilePath, const std::string& argDisplacementMapPath, const glm::mat4 argTransform)
-	: texturePath(argTextureFilePath), xform(argTransform)
+Terrain::Terrain()
 {
-	CreateTerrain(argNumCellsX, argNumCellsZ, argSizeX, argSizeZ, argTextureTilingX, argTextureTilingZ, texturePath, argDisplacementMapPath);
 }
 
-void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, const float argSizeX, const float argSizeZ, const int argTextureTilingX, const int argTextureTilingZ, const std::string& argTextureFilePath, const std::string& argDisplacementMapPath)
+void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, const float argSizeX, const float argSizeZ, const int argTextureTilingX, const int argTextureTilingZ, const std::string& argTextureName, const std::string& argDisplacementMapPath)
 {
 	xTiling = argTextureTilingX;
 	zTiling = argTextureTilingZ;
@@ -75,6 +73,15 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 	}
 
 	CalculateNormals();
+
+	CreateGeometry(terrainMesh);
+
+	Helpers::Material mat;
+
+	mat.diffuseTextureFilename = argTextureName;
+	mat.specularFactor = 0;
+
+	CreateTexture(mat);
 }
 
 void Terrain::CalculateNormals()
@@ -98,10 +105,10 @@ void Terrain::CalculateNormals()
 
 void Terrain::ApplyDisplacementMap(const std::string& argDisplacementMapPath, const int argNumOfVertsX, const int argNumOfVertsZ)
 {
-	GLubyte* heightData{ NULL };
-
 	if (argDisplacementMapPath != std::string())
 	{
+		GLubyte* heightData{ NULL };
+
 		if (texture.Load(argDisplacementMapPath))
 		{
 			heightData = (GLubyte*)texture.GetData();

@@ -14,49 +14,63 @@
 #include "Light.h"
 #include "Terrain.h"
 
-enum class EMeshType
+enum class ERenderableType
 {
 	eSkybox,
-	eModel
+	eModel,
+	eTerrain,
+	eLight
 };
 
-struct MeshLoadData
+struct SMeshLoadData
 {
-	MeshLoadData(const EMeshType argMeshType, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
-		: meshType(argMeshType), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
+	SMeshLoadData(const ERenderableType argRenderableType, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
+		: argRenderableType(argRenderableType), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
 	{}
 
-	EMeshType meshType;
+	ERenderableType argRenderableType;
 	std::string meshPath;
 	std::vector<int> childrenIDs;
 	Transform relativeTransform;
 	bool isCreated{ false };
 };
 
+struct STerrainLoadData : public SMeshLoadData
+{
+	STerrainLoadData(const ERenderableType argRenderableType, const Transform argRelativeTransform, const int argNumCellsX = 50, const int argNumCellsZ = 50, const float argSizeX = 1000.0f, const float argSizeZ = 1000.0f, const int argTextureTilingX = 1, const int argTextureTilingZ = 1, const std::string& argTextureFilePath = "Data\\Textures\\MissingTexture.jpg", const std::string& argDisplacementMapPath = std::string())
+		: SMeshLoadData(argRenderableType, std::string(), std::vector<int>(), argRelativeTransform),
+		numCellsX(argNumCellsX), numCellsZ(argNumCellsZ), sizeX(argSizeX), sizeZ(argSizeZ), textureTilingX(argTextureTilingX), textureTilingZ(argTextureTilingZ), textureFilePath(argTextureFilePath), displacementMapPath(argDisplacementMapPath)
+	{}
+
+	int numCellsX, numCellsZ, textureTilingX, textureTilingZ;
+	std::string textureFilePath;
+	float sizeX, sizeZ;
+	std::string displacementMapPath;
+};
+
+struct SLightLoadData : public SMeshLoadData
+{
+	SLightLoadData(const ERenderableType argRenderableType, const Transform argRelativeTransform, const ELightType argLightType, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
+		: SMeshLoadData(argRenderableType, std::string(), std::vector<int>(), argRelativeTransform),
+		light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
+	{}
+
+	ELightType light_type;
+	float light_fov;
+	glm::vec3 light_colour;
+	float light_range;
+	float light_intensity;
+
+};
+
 class Renderer
 {
 private:
 
+	std::vector<SMeshLoadData*> modelInfomation;
+	
 
 
-
-	std::vector<MeshLoadData> modelInfomation
-	{
-		MeshLoadData(EMeshType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
-	/*	MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{2, 3, 4, 5}, Transform(glm::vec3(150, 0, 0), glm::vec3(0, 0, 0), glm::vec3(150))),
-			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{6}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-				MeshLoadData(EMeshType::eModel, "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),*/
-		MeshLoadData(EMeshType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>(), Transform(glm::vec3(0, 0, 0), glm::vec3(1.5, 0, 0), glm::vec3(1)))
-	};
-
-
-
-
-
-	std::vector<Renderable*> meshes;
 	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
 
 	// Program object - to host shaders
@@ -64,12 +78,12 @@ private:
 
 	bool CreateProgram();
 	
-	void CreateMesh(MeshLoadData& argLoadData, std::vector<Renderable*>& argMeshLocation);
+	void CreateMesh(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation);
 
 public:
 	Renderer()=default;
 	~Renderer();
-
+	std::vector<Renderable*> renderables;
 	// Create and / or load geometry, this is like 'level load'
 	bool InitialiseGeometry();
 

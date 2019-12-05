@@ -4,8 +4,6 @@
 #include "Light.h"
 
 
-
-
 int Light::numOfLights{ 0 };
 
 void Light::SendNumOfLights(GLuint argProgram)
@@ -19,7 +17,7 @@ Light::Light(const ELightType argLightType, const Transform argTransform, const 
 	:	Renderable(argTransform), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
 {
 	lightID = numOfLights;
-
+	numOfLights++;
 }
 
 void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const
@@ -27,9 +25,9 @@ void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	/// Adds Current transform to matrix
 	argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
 
-	argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().x, glm::vec3(1, 0, 0));
-	argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().y, glm::vec3(0, 1, 0));
-	argParentTransform = glm::rotate(argParentTransform, currentTransform.GetRotation().z, glm::vec3(0, 0, 1));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
 
 	argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
 
@@ -53,7 +51,7 @@ void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	glUniform3fv(light_position_id, 1, glm::value_ptr(translation));
 
 	GLuint light_direction_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(lightID) + "].light_direction").c_str());
-	glUniform3fv(light_direction_id, 1, glm::value_ptr(glm::vec3(rotation.w, rotation.x, rotation.y)));
+	glUniform3fv(light_direction_id, 1, glm::value_ptr(glm::vec3(-rotation.x, -rotation.y, -rotation.z)));
 
 	GLuint light_fov_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(lightID) + "].light_fov").c_str());
 	glUniform1f(light_fov_id, light_fov);
