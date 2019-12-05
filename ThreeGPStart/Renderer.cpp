@@ -54,7 +54,7 @@ bool Renderer::CreateProgram()
 	return !Helpers::CheckForGLError();
 }
 
-void Renderer::CreateMesh(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation)
+void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation)
 {
 	argLoadData->isCreated = true;
 
@@ -67,8 +67,8 @@ void Renderer::CreateMesh(SMeshLoadData* argLoadData, std::vector<Renderable*>& 
 
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
-			if(i < modelInfomation.size())
-				CreateMesh(modelInfomation[argLoadData->childrenIDs[i]], skybox->children);
+			if(i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
+				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], skybox->children);
 		}
 		
 	}
@@ -81,8 +81,8 @@ void Renderer::CreateMesh(SMeshLoadData* argLoadData, std::vector<Renderable*>& 
 
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
-			if (i < modelInfomation.size())
-				CreateMesh(modelInfomation[argLoadData->childrenIDs[i]], model->children);
+			if (i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
+				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], model->children);
 		}
 		
 	}
@@ -125,7 +125,7 @@ bool Renderer::InitialiseGeometry()
 		//Light(ELightType::eSpot, Transform(glm::vec3(0, 10, 0), glm::vec3(0, -1, 0)), 5.0f, glm::vec3(1, 0, 0), 350, 10.0),
 		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(0, 500, 0), glm::vec3(1, -1, -1)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
 		new SMeshLoadData(ERenderableType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
-		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{3, 4, 5, 6}, Transform(glm::vec3(-150, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
+		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{2, 4, 5, 6}, Transform(glm::vec3(-150, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
@@ -154,7 +154,7 @@ bool Renderer::InitialiseGeometry()
 	{
 		if (!data->isCreated)
 		{
-			CreateMesh(data, renderables);
+			CreateRenderable(data, renderables);
 		}
 	}
 	// Always a good idea, when debugging at least, to check for GL errors

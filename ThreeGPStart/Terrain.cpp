@@ -1,5 +1,7 @@
 #include "Terrain.h"
 
+#include "PerlinNoise.h"
+
 Terrain::Terrain()
 {
 }
@@ -29,6 +31,10 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 		for (int x = 0; x < numOfVertsX; x++)
 		{
 			terrainMesh.vertices.push_back(glm::vec3(worldPositionX + (x * vertexXSpacing), 0, worldPositionZ + (-z * vertexZSpacing)));
+
+			/// Applies initial vert height using perlin noise
+			glm::vec3 currentVert{ terrainMesh.vertices.back() };
+			terrainMesh.vertices.back().y = PerlinNoise::Perlin(currentVert.x, currentVert.z) * 5;
 
 			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfVertsX) * xTiling, z / static_cast<float>(numOfVertsZ) * zTiling));
 			terrainMesh.normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));

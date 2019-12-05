@@ -78,7 +78,7 @@ private:
 
 	bool CreateProgram();
 	
-	void CreateMesh(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation);
+	void CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation);
 
 public:
 	Renderer()=default;
