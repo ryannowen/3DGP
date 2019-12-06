@@ -68,7 +68,6 @@ class Renderer
 private:
 
 	std::vector<SMeshLoadData*> modelInfomation;
-	
 
 
 	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
@@ -78,12 +77,14 @@ private:
 
 	bool CreateProgram();
 	
-	void CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation);
+	void CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation, Renderable* argParent);
 
 public:
 	Renderer()=default;
 	~Renderer();
 	std::vector<Renderable*> renderables;
+	std::vector<Light*> lights;
+
 	// Create and / or load geometry, this is like 'level load'
 	bool InitialiseGeometry();
 

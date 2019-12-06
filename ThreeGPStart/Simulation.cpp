@@ -27,23 +27,40 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	int x{ 0 }, y{ 0 }, z{ 0 };
+	glm::vec3 pos1(0);
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) // Right
-		x = 10;
+		pos1.x = 10;
 	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // Left
-		x = -10;
+		pos1.x = -10;
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) // Up
-		y = -10;
+		pos1.y = -10;
 	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) // Down
-		y = 10;
+		pos1.y = 10;
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) // Forward
-		z = -10;
+		pos1.z = -10;
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
-		z = 10;
+		pos1.z = 10;
 
 	
-	static_cast<Model*>(m_renderer->renderables[0])->currentTransform.AddPosition(glm::vec3(x, y, z));
+	static_cast<Model*>(m_renderer->renderables[4])->currentTransform.AddPosition(pos1);
+
+	glm::vec3 pos2(0);
+
+	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) // Right
+		pos2.x = 10;
+	else if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) // Left
+		pos2.x = -10;
+	if (glfwGetKey(window, GLFW_KEY_KP_9) == GLFW_PRESS) // Up
+		pos2.y = -10;
+	else if (glfwGetKey(window, GLFW_KEY_KP_7) == GLFW_PRESS) // Down
+		pos2.y = 10;
+	if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) // Forward
+		pos2.z = -10;
+	else if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // Back
+		pos2.z = 10;
+
+	static_cast<Light*>(m_renderer->lights[2])->currentTransform.AddPosition(pos2);
 
 	//m_renderer->lights[0].light_position += glm::vec3(x, y, z);
 

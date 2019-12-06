@@ -2,8 +2,8 @@
 
 #include "ImageLoader.h"
 
-Model::Model(const Transform& argTransform, const bool argHasLighting)
-	: Renderable(argTransform), hasLighting(argHasLighting)
+Model::Model(const Transform& argTransform, const bool argHasLighting, Renderable* argParent)
+	: Renderable(argTransform, argParent), hasLighting(argHasLighting)
 {
 }
 
@@ -53,6 +53,7 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 		glBindVertexArray(mesh.VAO);
 		glDrawElements(GL_TRIANGLES, mesh.meshElements, GL_UNSIGNED_INT, (void*)0);
 	}
+
 
 	/// Renders all children
 	for (const Renderable* renderable : children)

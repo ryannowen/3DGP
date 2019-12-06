@@ -54,9 +54,10 @@ bool Renderer::CreateProgram()
 	return !Helpers::CheckForGLError();
 }
 
-void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation)
+void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation, Renderable* argParent)
 {
 	argLoadData->isCreated = true;
+
 
 	if (argLoadData->argRenderableType == ERenderableType::eSkybox)
 	{
@@ -68,21 +69,21 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
 			if(i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
-				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], skybox->children);
+				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], skybox->children, skybox);
 		}
 		
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eModel)
 	{
-		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, true));
+		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, true, argParent));
 
-		Model*  model = static_cast<Model*>(argMeshLocation.back());
+		Model* model = static_cast<Model*>(argMeshLocation.back());
 		model->LoadMesh(argLoadData->meshPath);
 
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
 			if (i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
-				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], model->children);
+				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], model->children, model);
 		}
 		
 	}
@@ -97,7 +98,7 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eLight)
 	{
-		argMeshLocation.push_back(new Light());
+		argMeshLocation.push_back(new Light(argParent));
 		SLightLoadData* lightData = static_cast<SLightLoadData*>(argLoadData);
 
 		Light* light{ static_cast<Light*>(argMeshLocation.back()) };
@@ -108,7 +109,9 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 		light->light_colour = lightData->light_colour;
 		light->light_range = lightData->light_range;
 		light->light_intensity = lightData->light_intensity;
+		
 
+		lights.push_back(light);
 	}
 }
 
@@ -121,17 +124,17 @@ bool Renderer::InitialiseGeometry()
 	
 	modelInfomation = std::vector<SMeshLoadData*>
 	{
-		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(-150, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 0, 1), 300, 20.0f),
-		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(200, 400, 0), glm::vec3(0, -1, 0)), ELightType::eSpot, 5.0f, glm::vec3(1, 0, 0), 500, 10.0),
+		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(-200, 400, 0), glm::vec3(0, -1, 0)), ELightType::eSpot, 5.0f, glm::vec3(1, 0, 0), 500, 20.0),
 		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(0, 0, 0), glm::vec3(1, -1, -1)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
 		new SMeshLoadData(ERenderableType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
-		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{5, 6, 7, 8}, Transform(glm::vec3(-150, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
+		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(-200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{9}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{8}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 				new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-				new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>(), Transform(glm::vec3(150, 100, 0), glm::vec3(0, -90, 0), glm::vec3(0.5))),
+		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10}, Transform(glm::vec3(150, 100, 0), glm::vec3(0, -90, 0), glm::vec3(0.5))),
+			new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(0, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 0, 1), 300, 20.0f),
 		new STerrainLoadData(ERenderableType::eTerrain, Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
 	};
 
@@ -140,7 +143,7 @@ bool Renderer::InitialiseGeometry()
 	{
 		if (!data->isCreated)
 		{
-			CreateRenderable(data, renderables);
+			CreateRenderable(data, renderables, NULL);
 		}
 	}
 	// Always a good idea, when debugging at least, to check for GL errors
@@ -178,11 +181,17 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glm::mat4 projection_xform = glm::perspective(glm::radians(45.0f), aspectRatio, nearPlane, farPlane);
 
 
+	/// Sends all lights to shader, and updates the number of lights
+	for (Light* light : lights)
+	{
+		light->ApplyLight(m_program);
+	}
+
 	Light::SendNumOfLights(m_program);
 
 	//static_cast<Model*>(renderables[2])->currentTransform.AddRotation(glm::vec3(0, 0.01f, 0));
 
-	/// Binds and Draws VAO
+	/// Binds and Draws Renderable VAO's
 	for (const Renderable* renderable : renderables)
 	{
 		renderable->Draw(m_program, camera, projection_xform, glm::mat4(1));

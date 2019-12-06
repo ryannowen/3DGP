@@ -30,7 +30,7 @@ protected:
 
 public:
 	std::vector<Renderable*> children;
-	Model(const Transform& argTransform = Transform(), const bool argHasLighting = true);
+	Model(const Transform& argTransform = Transform(), const bool argHasLighting = true, Renderable* argParent = NULL);
 	~Model();
 
 	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const override;
