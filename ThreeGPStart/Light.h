@@ -12,13 +12,12 @@ class Light : public Renderable
 {
 private:
 	int lightID{ 0 };
-public:
 	static int numOfLights;
-	
-	
+
+public:
 	static void SendNumOfLights(GLuint argProgram);
 
-	Light(Renderable* argParent, const ELightType argLightType = ELightType::ePoint, const Transform argTransform = Transform(), const float argLightFOV = 5.0f, const glm::vec3 argLightColour = glm::vec3(1), const float argLightRange = 200.0f, const float argLightIntensity = 10.0f);
+	Light(Renderable* argParent, const std::string& argName, const ELightType argLightType = ELightType::ePoint, const Transform argTransform = Transform(), const float argLightFOV = 5.0f, const glm::vec3 argLightColour = glm::vec3(1), const float argLightRange = 200.0f, const float argLightIntensity = 10.0f);
 
 	ELightType light_type;
 	float light_fov;

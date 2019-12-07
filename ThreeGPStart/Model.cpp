@@ -2,8 +2,8 @@
 
 #include "ImageLoader.h"
 
-Model::Model(const Transform& argTransform, const bool argHasLighting, Renderable* argParent)
-	: Renderable(argTransform, argParent), hasLighting(argHasLighting)
+Model::Model(const Transform& argTransform, const std::string& argName, const bool argHasLighting, Renderable* argParent)
+	: Renderable(argTransform, argParent, argName), hasLighting(argHasLighting)
 {
 }
 
@@ -18,10 +18,6 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	/// Creates View Matrix for camera
 	glm::mat4 view_xform = glm::lookAt(argCamera.GetPosition(), argCamera.GetPosition() + argCamera.GetLookVector(), argCamera.GetUpVector());
 	glm::mat4 combined_xform = argProjection_Xform * view_xform;
-
-
-	/// Uses Shaders from our program
-	glUseProgram(argProgram);
 
 	/// Create hasLighting ID and then Sends bool data to shader as Uniform
 	GLuint hasLighting_id = glGetUniformLocation(argProgram, "hasLighting");
@@ -76,6 +72,28 @@ void Model::LoadMesh(const std::string& argModelPath)
 	{
 		CreateGeometry(renderables.GetMeshVector()[i]);
 		CreateTexture(renderables.GetMaterialVector()[i]);
+	}
+}
+
+Renderable* Model::FindChild(const std::string& argChildName)
+{
+	if (name == argChildName)
+		return this;
+	else
+	{
+		for (Renderable* child : children)
+		{
+			if (child->name == argChildName)
+				return child;
+			else
+			{
+				Renderable* foundChild{ static_cast<Model*>(child)->FindChild(argChildName) };
+				if (foundChild != nullptr)
+					return foundChild;
+			}
+		}
+
+		return nullptr;
 	}
 }
 
@@ -154,7 +172,7 @@ void Model::CreateTexture(const Helpers::Material& argMat)
 	/// Generates texture
 	glGenTextures(1, &textureRef);
 	glBindTexture(GL_TEXTURE_2D, textureRef);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

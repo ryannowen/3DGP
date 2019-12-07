@@ -42,9 +42,24 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
 		pos1.z = 10;
 
+	static_cast<Model*>(m_renderer->renderables[2])->currentTransform.AddPosition(pos1);	
 	
-	static_cast<Model*>(m_renderer->renderables[4])->currentTransform.AddPosition(pos1);
+	Renderable* propeller{ static_cast<Model*>(m_renderer->renderables[1])->FindChild("Aqua_Propeller") };
+	if (propeller != nullptr)
+		static_cast<Model*>(propeller)->currentTransform.AddRotation(glm::vec3(0, 10, 0));
+	
 
+
+	Renderable* gunbase{ static_cast<Model*>(m_renderer->renderables[1])->FindChild("Aqua_Gunbase") };
+	if (gunbase != nullptr)
+	{
+		static_cast<Model*>(gunbase)->currentTransform.AddRotation(glm::vec3(0, sin(2 * m_lastTime) + 0.5, 0));
+
+		Renderable* gun{ static_cast<Model*>(gunbase)->FindChild("Aqua_Gun") };
+		if (gun != nullptr)
+			static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * 2, 0, 0));
+	}
+	
 	glm::vec3 pos2(0);
 
 	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) // Right
@@ -60,9 +75,8 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // Back
 		pos2.z = 10;
 
-	static_cast<Light*>(m_renderer->lights[2])->currentTransform.AddPosition(pos2);
+	static_cast<Light*>(m_renderer->lights[1])->currentTransform.AddPosition(pos2);
 
-	//m_renderer->lights[0].light_position += glm::vec3(x, y, z);
 
 	// int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 

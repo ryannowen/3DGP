@@ -61,7 +61,7 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 
 	if (argLoadData->argRenderableType == ERenderableType::eSkybox)
 	{
-		argMeshLocation.push_back(new Skybox(argLoadData->relativeTransform, false));
+		argMeshLocation.push_back(new Skybox(argLoadData->relativeTransform, argLoadData->name, false));
 
 		Skybox* skybox = static_cast<Skybox*>(argMeshLocation.back());
 		skybox->LoadMesh(argLoadData->meshPath);
@@ -75,7 +75,7 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eModel)
 	{
-		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, true, argParent));
+		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, argLoadData->name, true, argParent));
 
 		Model* model = static_cast<Model*>(argMeshLocation.back());
 		model->LoadMesh(argLoadData->meshPath);
@@ -98,10 +98,11 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eLight)
 	{
-		argMeshLocation.push_back(new Light(argParent));
+		lights.push_back(new Light(argParent, argLoadData->name));
+		//argMeshLocation.push_back(new Light(argParent));
 		SLightLoadData* lightData = static_cast<SLightLoadData*>(argLoadData);
 
-		Light* light{ static_cast<Light*>(argMeshLocation.back()) };
+		Light* light{ static_cast<Light*>(lights.back()) };
 		
 		light->light_type = lightData->light_type;
 		light->currentTransform = lightData->relativeTransform;
@@ -109,9 +110,6 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 		light->light_colour = lightData->light_colour;
 		light->light_range = lightData->light_range;
 		light->light_intensity = lightData->light_intensity;
-		
-
-		lights.push_back(light);
 	}
 }
 
@@ -124,18 +122,19 @@ bool Renderer::InitialiseGeometry()
 	
 	modelInfomation = std::vector<SMeshLoadData*>
 	{
-		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(-200, 400, 0), glm::vec3(0, -1, 0)), ELightType::eSpot, 5.0f, glm::vec3(1, 0, 0), 500, 20.0),
-		new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(0, 0, 0), glm::vec3(1, -1, -1)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
-		new SMeshLoadData(ERenderableType::eSkybox, "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
-		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(-200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
-			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{8}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-				new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-		new SMeshLoadData(ERenderableType::eModel, "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10}, Transform(glm::vec3(150, 100, 0), glm::vec3(0, -90, 0), glm::vec3(0.5))),
-			new SLightLoadData(ERenderableType::eLight, Transform(glm::vec3(0, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 0, 1), 300, 20.0f),
-		new STerrainLoadData(ERenderableType::eTerrain, Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
+		new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(0, 500, 0), glm::vec3(0, -1, 0)), ELightType::eSpot, 5, glm::vec3(1, 1, 0), 200, 20.0),
+		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(-1, -1, 1)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
+		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(0, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 0, 1), 300, 20.0f),
+		new SMeshLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
+		new SMeshLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{5, 6, 7, 8}, Transform(glm::vec3(-200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
+			new SMeshLoadData(ERenderableType::eModel, "Aqua_RWing", "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			new SMeshLoadData(ERenderableType::eModel, "Aqua_LWing", "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			new SMeshLoadData(ERenderableType::eModel, "Aqua_Propeller", "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
+			new SMeshLoadData(ERenderableType::eModel, "Aqua_Gunbase", "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{9}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+				new SMeshLoadData(ERenderableType::eModel, "Aqua_Gun", "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+		new SMeshLoadData(ERenderableType::eModel, "Jeep", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{}, Transform(glm::vec3(0, 600, 0), glm::vec3(0, 0, 0), glm::vec3(0.5))),	
+			//	new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(0, 0, 0), glm::vec3(-1, 0, 0)), ELightType::eSpot, 5.0f, glm::vec3(1, 0, 0), 500, 20.0),
+		new STerrainLoadData(ERenderableType::eTerrain, "MainTerrain", Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
 	};
 
 	/// Loads Models
@@ -159,18 +158,17 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	// Uncomment to render in wireframe (can be useful when debugging)
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	// Clear buffers from previous frame
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
+	/// Uses Shaders from our program
+	glUseProgram(m_program);
 
 	/// Create camera ID and then Sends camera forward direction data to shader as Uniform
 	GLuint camera_direcion_id = glGetUniformLocation(m_program, "camera_direction");
 	glUniform3fv(camera_direcion_id, 1, glm::value_ptr(camera.GetLookVector()));
-
+	Helpers::CheckForGLError();
 	/// Creates and Gets Viewport size
 	GLint viewportDimensions[4];
 	glGetIntegerv(GL_VIEWPORT, viewportDimensions);
@@ -180,7 +178,6 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	float nearPlane{ 1.0f }, farPlane{ 12000.0f };
 	glm::mat4 projection_xform = glm::perspective(glm::radians(45.0f), aspectRatio, nearPlane, farPlane);
 
-
 	/// Sends all lights to shader, and updates the number of lights
 	for (Light* light : lights)
 	{
@@ -188,8 +185,6 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	}
 
 	Light::SendNumOfLights(m_program);
-
-	//static_cast<Model*>(renderables[2])->currentTransform.AddRotation(glm::vec3(0, 0.01f, 0));
 
 	/// Binds and Draws Renderable VAO's
 	for (const Renderable* renderable : renderables)

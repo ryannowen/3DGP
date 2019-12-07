@@ -37,7 +37,7 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 			terrainMesh.vertices.back().y = PerlinNoise::Perlin(currentVert.x, currentVert.z) * 5;
 
 			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfCellsX) * xTiling, z / static_cast<float>(numOfCellsZ) * zTiling));
-			terrainMesh.normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+			terrainMesh.normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 	}
 

@@ -56,6 +56,7 @@ void main(void)
 	{
 		fragment_colour *= vec4(ambient_colour, 1);
 
+		// Loops through all lights
 		for (int i = 0; i < numOfLights; i++)
 		{
 			vec3 L;
@@ -74,10 +75,10 @@ void main(void)
 				L = normalize(-lights[i].light_direction);
 			}
 
-
 			// Diffuse
 			vec3 diffuse_intensity = max(vec3(0.0), dot(L, N));
 			diffuse_intensity *= max(vec3(0.1), lights[i].light_colour) * max(0.01, lights[i].light_intensity);
+
 
 			// Specular
 			vec3 specular = vec3(0);
@@ -89,13 +90,15 @@ void main(void)
 				specular = specular_Colour * pow(LR, specular_intensity);
 			}
 
-			if (lights[i].light_type == 2) // Spot light
+
+			// Spot light
+			if (lights[i].light_type == 2) 
 			{
-				attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(L, -lights[i].light_direction));
+				attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(L, lights[i].light_direction));
 			}
 
 			// Final Calculation
-			fragment_colour += vec4(((diffuse_colour.rgb + specular) * diffuse_intensity * attenuation), 0.0);
+			fragment_colour += vec4((((diffuse_colour.rgb + specular) * diffuse_intensity) * attenuation), 0.0);
 		}
 
 

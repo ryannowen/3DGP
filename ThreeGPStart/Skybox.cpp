@@ -1,8 +1,8 @@
 #include "Skybox.h"
 
 
-Skybox::Skybox(const Transform& argTransform, const bool argHasLighting)
-	:	Model(argTransform, argHasLighting)
+Skybox::Skybox(const Transform& argTransform, const std::string& argName, const bool argHasLighting)
+	:	Model(argTransform, argName, argHasLighting)
 {
 
 }
@@ -17,9 +17,6 @@ void Skybox::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm
 	/// Disables Depth Testing
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
-
-	/// Uses Shaders from our program
-	glUseProgram(argProgram);
 
 	/// Create hasLighting ID and then Sends bool data to shader as Uniform
 	GLuint hasLighting_id = glGetUniformLocation(argProgram, "hasLighting");

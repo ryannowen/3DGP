@@ -24,10 +24,11 @@ enum class ERenderableType
 
 struct SMeshLoadData
 {
-	SMeshLoadData(const ERenderableType argRenderableType, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
-		: argRenderableType(argRenderableType), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
+	SMeshLoadData(const ERenderableType argRenderableType, const std::string argName, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
+		: argRenderableType(argRenderableType), name(argName), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
 	{}
 
+	std::string name;
 	ERenderableType argRenderableType;
 	std::string meshPath;
 	std::vector<int> childrenIDs;
@@ -37,8 +38,8 @@ struct SMeshLoadData
 
 struct STerrainLoadData : public SMeshLoadData
 {
-	STerrainLoadData(const ERenderableType argRenderableType, const Transform argRelativeTransform, const int argNumCellsX = 50, const int argNumCellsZ = 50, const float argSizeX = 1000.0f, const float argSizeZ = 1000.0f, const int argTextureTilingX = 1, const int argTextureTilingZ = 1, const std::string& argTextureFilePath = "Data\\Textures\\MissingTexture.jpg", const std::string& argDisplacementMapPath = std::string())
-		: SMeshLoadData(argRenderableType, std::string(), std::vector<int>(), argRelativeTransform),
+	STerrainLoadData(const ERenderableType argRenderableType, const std::string argName, const Transform argRelativeTransform, const int argNumCellsX = 50, const int argNumCellsZ = 50, const float argSizeX = 1000.0f, const float argSizeZ = 1000.0f, const int argTextureTilingX = 1, const int argTextureTilingZ = 1, const std::string& argTextureFilePath = "Data\\Textures\\MissingTexture.jpg", const std::string& argDisplacementMapPath = std::string())
+		: SMeshLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
 		numCellsX(argNumCellsX), numCellsZ(argNumCellsZ), sizeX(argSizeX), sizeZ(argSizeZ), textureTilingX(argTextureTilingX), textureTilingZ(argTextureTilingZ), textureFilePath(argTextureFilePath), displacementMapPath(argDisplacementMapPath)
 	{}
 
@@ -50,8 +51,8 @@ struct STerrainLoadData : public SMeshLoadData
 
 struct SLightLoadData : public SMeshLoadData
 {
-	SLightLoadData(const ERenderableType argRenderableType, const Transform argRelativeTransform, const ELightType argLightType, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
-		: SMeshLoadData(argRenderableType, std::string(), std::vector<int>(), argRelativeTransform),
+	SLightLoadData(const ERenderableType argRenderableType, const std::string argName, const Transform argRelativeTransform, const ELightType argLightType, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
+		: SMeshLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
 		light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
 	{}
 
@@ -68,7 +69,6 @@ class Renderer
 private:
 
 	std::vector<SMeshLoadData*> modelInfomation;
-
 
 	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
 

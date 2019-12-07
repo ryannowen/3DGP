@@ -1,6 +1,6 @@
 #include "Renderable.h"
 
-Renderable::Renderable(Transform argTransform, Renderable* argParent)
-	: currentTransform(argTransform), parent(argParent)
+Renderable::Renderable(const Transform argTransform, Renderable* argParent, const std::string& argName)
+	: currentTransform(argTransform), parent(argParent), name(argName)
 {
 }

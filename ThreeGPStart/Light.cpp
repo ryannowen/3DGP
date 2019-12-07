@@ -15,8 +15,8 @@ void Light::SendNumOfLights(GLuint argProgram)
 	numOfLights = 0;
 }
 
-Light::Light(Renderable* argParent, const ELightType argLightType, const Transform argTransform, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
-	:	Renderable(argTransform, argParent), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
+Light::Light(Renderable* argParent, const std::string& argName, const ELightType argLightType, const Transform argTransform, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
+	:	Renderable(argTransform, argParent, argName), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
 {	
 }
 
@@ -24,7 +24,7 @@ void Light::ApplyLight(GLuint argProgram)
 {
 	if (disabled)
 	{
-		std::cout << "Light disabled, not applying" << std::endl;
+		std::cout << name << " disabled, not applying" << std::endl;
 		return;
 	}
 
@@ -57,6 +57,7 @@ void Light::ApplyLight(GLuint argProgram)
 	glm::decompose(transform, scale, rotation, translation, skew, perspective);
 	rotation = glm::conjugate(rotation);
 
+
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
 
@@ -64,7 +65,7 @@ void Light::ApplyLight(GLuint argProgram)
 	glUniform3fv(light_position_id, 1, glm::value_ptr(translation));
 
 	GLuint light_direction_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_direction").c_str());
-	glUniform3fv(light_direction_id, 1, glm::value_ptr(glm::vec3(-rotation.x, -rotation.y, -rotation.z)));
+	glUniform3fv(light_direction_id, 1, glm::value_ptr(glm::vec3(rotation.x, -rotation.y, rotation.z)));
 
 	GLuint light_fov_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_fov").c_str());
 	glUniform1f(light_fov_id, light_fov);
