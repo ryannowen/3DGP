@@ -37,7 +37,7 @@ uniform SMaterial material;
 
 uniform bool hasLighting;
 uniform int numOfLights;
-uniform SLightData lights[3];
+uniform SLightData lights[20];
 
 void main(void)
 {

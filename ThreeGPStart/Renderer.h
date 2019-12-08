@@ -69,8 +69,9 @@ class Renderer
 private:
 
 	std::vector<SMeshLoadData*> modelInfomation;
-
 	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
+	std::vector<Renderable*> renderables;
+	std::vector<Light*> lights;
 
 	// Program object - to host shaders
 	GLuint m_program{ 0 };
@@ -82,11 +83,12 @@ private:
 public:
 	Renderer()=default;
 	~Renderer();
-	std::vector<Renderable*> renderables;
-	std::vector<Light*> lights;
+
+	Renderable* FindRenderable(const std::string& argName) const;
 
 	// Create and / or load geometry, this is like 'level load'
 	bool InitialiseGeometry();
+
 
 	// Render the scene
 	void Render(const Helpers::Camera& camera, float deltaTime);

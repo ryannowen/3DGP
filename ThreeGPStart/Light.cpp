@@ -28,23 +28,33 @@ void Light::ApplyLight(GLuint argProgram)
 		return;
 	}
 
-
-
 	Renderable* currentParent{ this };
 	glm::mat4 transform = glm::mat4(1);
 
+	std::vector<Renderable*> parents;
+
 	while (currentParent != NULL)
 	{
-		/// Adds Current transform to matrix
-		transform = glm::translate(transform, currentParent->currentTransform.GetPosition());
+		parents.push_back(currentParent);
 
-		transform = glm::rotate(transform, glm::radians(currentParent->currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
-		transform = glm::rotate(transform, glm::radians(currentParent->currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
-		transform = glm::rotate(transform, glm::radians(currentParent->currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
-
-		transform = glm::scale(transform, currentParent->currentTransform.GetScale());
 
 		currentParent = currentParent->parent;
+	}
+
+	std::reverse(std::begin(parents), std::end(parents));
+
+	for (Renderable* cParent : parents)
+	{
+		Transform parentTransform{ cParent->currentTransform };
+
+		/// Adds Current transform to matrix
+		transform = glm::translate(transform, parentTransform.GetPosition());
+
+		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().x), glm::vec3(1, 0, 0));
+		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().y), glm::vec3(0, 1, 0));
+		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().z), glm::vec3(0, 0, 1));
+
+		transform = glm::scale(transform, parentTransform.GetScale());
 	}
 
 	/// Decompresses matrix (Function requires all parameters)

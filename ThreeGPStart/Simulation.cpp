@@ -42,41 +42,33 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
 		pos1.z = 10;
 
-	static_cast<Model*>(m_renderer->renderables[2])->currentTransform.AddPosition(pos1);	
-	
-	Renderable* propeller{ static_cast<Model*>(m_renderer->renderables[1])->FindChild("Aqua_Propeller") };
-	if (propeller != nullptr)
-		static_cast<Model*>(propeller)->currentTransform.AddRotation(glm::vec3(0, 10, 0));
-	
 
-
-	Renderable* gunbase{ static_cast<Model*>(m_renderer->renderables[1])->FindChild("Aqua_Gunbase") };
-	if (gunbase != nullptr)
+	Model* jeep = static_cast<Model*>(m_renderer->FindRenderable("Jeep"));
+	if (jeep != nullptr)
 	{
-		static_cast<Model*>(gunbase)->currentTransform.AddRotation(glm::vec3(0, sin(2 * m_lastTime) + 0.5, 0));
-
-		Renderable* gun{ static_cast<Model*>(gunbase)->FindChild("Aqua_Gun") };
-		if (gun != nullptr)
-			static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * 2, 0, 0));
+		jeep->currentTransform.AddPosition(pos1);
+		//jeep->currentTransform.AddRotation(glm::vec3(0, 1, 0));
+		//std::cout << jeep->currentTransform.GetRotation().y << std::endl;
 	}
-	
-	glm::vec3 pos2(0);
 
-	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) // Right
-		pos2.x = 10;
-	else if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) // Left
-		pos2.x = -10;
-	if (glfwGetKey(window, GLFW_KEY_KP_9) == GLFW_PRESS) // Up
-		pos2.y = -10;
-	else if (glfwGetKey(window, GLFW_KEY_KP_7) == GLFW_PRESS) // Down
-		pos2.y = 10;
-	if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) // Forward
-		pos2.z = -10;
-	else if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // Back
-		pos2.z = 10;
 
-	static_cast<Light*>(m_renderer->lights[1])->currentTransform.AddPosition(pos2);
+	Model* AquaPig{ static_cast<Model*>(m_renderer->FindRenderable("Aqua_Hull")) };
+	if (AquaPig != nullptr)
+	{
+		Renderable* propeller{ AquaPig->FindChild("Aqua_Propeller") };
+		if (propeller != nullptr)
+			static_cast<Model*>(propeller)->currentTransform.AddRotation(glm::vec3(0, 10, 0));
 
+		Renderable* gunbase{ AquaPig->FindChild("Aqua_Gunbase") };
+		if (gunbase != nullptr)
+		{
+			static_cast<Model*>(gunbase)->currentTransform.AddRotation(glm::vec3(0, sin(2 * m_lastTime) + 0.5, 0));
+
+			Renderable* gun{ static_cast<Model*>(gunbase)->FindChild("Aqua_Gun") };
+			if (gun != nullptr)
+				static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * 2, 0, 0));
+		}
+	}
 
 	// int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
@@ -88,7 +80,6 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	// To reenable it use GLFW_CURSOR_NORMAL
 
-	// To see an example of input using GLFW see the camera.cpp file.
 	return true;
 }
 
