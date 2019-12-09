@@ -47,10 +47,8 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	if (jeep != nullptr)
 	{
 		jeep->currentTransform.AddPosition(pos1);
-		//jeep->currentTransform.AddRotation(glm::vec3(0, 1, 0));
-		//std::cout << jeep->currentTransform.GetRotation().y << std::endl;
+		jeep->currentTransform.AddRotation(glm::vec3(0, 1, 0));
 	}
-
 
 	Model* AquaPig{ static_cast<Model*>(m_renderer->FindRenderable("Aqua_Hull")) };
 	if (AquaPig != nullptr)
@@ -66,7 +64,7 @@ bool Simulation::HandleInput(GLFWwindow* window)
 
 			Renderable* gun{ static_cast<Model*>(gunbase)->FindChild("Aqua_Gun") };
 			if (gun != nullptr)
-				static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * 2, 0, 0));
+				static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * -2, 0, 0));
 		}
 	}
 

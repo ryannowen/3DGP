@@ -123,17 +123,19 @@ bool Renderer::InitialiseGeometry()
 	modelInfomation = std::vector<SMeshLoadData*>
 	{
 		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(-180, 180, 180)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
-		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(-200, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 0, 1), 300, 20.0f),
+		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 1, 0), 300, 20.0f),
 		new SMeshLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
-		new SMeshLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(-200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
+		
+		new SMeshLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
 			new SMeshLoadData(ERenderableType::eModel, "Aqua_RWing", "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Aqua_LWing", "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Aqua_Propeller", "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
 			new SMeshLoadData(ERenderableType::eModel, "Aqua_Gunbase", "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{8}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 				new SMeshLoadData(ERenderableType::eModel, "Aqua_Gun", "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-		new SMeshLoadData(ERenderableType::eModel, "Jeep", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10, 11}, Transform(glm::vec3(0, 0, 0), glm::vec3(0, -90, 0), glm::vec3(0.5))),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(1, 0, 0), 500, 10.0),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(0, 0, 1), 500, 10.0),
+		
+		new SMeshLoadData(ERenderableType::eModel, "Jeep", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10, 11}, Transform(glm::vec3(-300, 150, 0), glm::vec3(0, 0, 0), glm::vec3(0.5))),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(1, 0, 0), 500, 20.0),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(0, 0, 1), 500, 20.0),
 		new STerrainLoadData(ERenderableType::eTerrain, "MainTerrain", Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
 	};
 

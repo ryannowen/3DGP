@@ -19,7 +19,7 @@ public:
 	glm::vec3 GetPosition() const { return position; }
 
 	void SetRotation(glm::vec3 argNewRotation) { rotation = argNewRotation; }
-	void AddRotation(glm::vec3 argAngle) { rotation += argAngle; }
+	void AddRotation(glm::vec3 argAngle) { rotation += argAngle; if (rotation.x > 360) rotation.x -= 360; if (rotation.y > 180) rotation.y -= 360; if (rotation.z > 360) rotation.z -= 360; }
 	glm::vec3 GetRotation() const { return rotation; }
 
 	void SetScale(glm::vec3 argNewScale) { scale = argNewScale; }

@@ -37,7 +37,6 @@ void Light::ApplyLight(GLuint argProgram)
 	{
 		parents.push_back(currentParent);
 
-
 		currentParent = currentParent->parent;
 	}
 
@@ -67,6 +66,12 @@ void Light::ApplyLight(GLuint argProgram)
 	glm::decompose(transform, scale, rotation, translation, skew, perspective);
 	rotation = glm::conjugate(rotation);
 
+	if (numOfLights == 2)
+	{
+		std::cout << "Jeep Rot " << parents[0]->currentTransform.GetRotation().y << std::endl;
+		std::cout << "Light Rot " << currentTransform.GetRotation().y << std::endl;
+		std::cout << "Calculated Rot " << rotation.y << std::endl << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+	}
 
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
