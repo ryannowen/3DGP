@@ -123,7 +123,7 @@ bool Renderer::InitialiseGeometry()
 	modelInfomation = std::vector<SMeshLoadData*>
 	{
 		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(-180, 180, 180)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
-		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(0, 1, 0), 300, 20.0f),
+		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(1.f, 0.5f, 0.5f), 300, 20.0f),
 		new SMeshLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
 		
 		new SMeshLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),

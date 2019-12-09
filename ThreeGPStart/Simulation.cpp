@@ -47,7 +47,20 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	if (jeep != nullptr)
 	{
 		jeep->currentTransform.AddPosition(pos1);
-		jeep->currentTransform.AddRotation(glm::vec3(0, 1, 0));
+		jeep->currentTransform.AddRotation(glm::vec3(0, 2, 0));
+	}
+
+	Light* spot = static_cast<Light*>(m_renderer->FindRenderable("Light_Spot_Right"));
+	if (spot != nullptr)
+	{
+		//spot->currentTransform.AddPosition(pos1);
+		//spot->currentTransform.AddRotation(glm::vec3(0, 0.1f, 0));
+	}
+
+	Light* point = static_cast<Light*>(m_renderer->FindRenderable("Light_Point"));
+	if (point != nullptr)
+	{
+		point->currentTransform.AddPosition(sin(glm::vec3(5,0,0) * m_lastTime) * 20.0f);
 	}
 
 	Model* AquaPig{ static_cast<Model*>(m_renderer->FindRenderable("Aqua_Hull")) };

@@ -66,6 +66,7 @@ void Light::ApplyLight(GLuint argProgram)
 	glm::decompose(transform, scale, rotation, translation, skew, perspective);
 	rotation = glm::conjugate(rotation);
 
+
 	if (numOfLights == 2)
 	{
 		std::cout << "Jeep Rot " << parents[0]->currentTransform.GetRotation().y << std::endl;

@@ -98,7 +98,7 @@ void main(void)
 			}
 
 			// Final Calculation
-			fragment_colour += vec4((((diffuse_colour.rgb + specular) * diffuse_intensity) * attenuation), 0.0);
+			fragment_colour += vec4(((diffuse_colour.rgb + specular) * diffuse_intensity * attenuation), 0.0);
 		}
 	}
 
