@@ -94,7 +94,7 @@ void main(void)
 			// Spot light
 			if (lights[i].light_type == 2) 
 			{
-				attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(L, lights[i].light_direction));
+				attenuation *= smoothstep(cos(0.5 * lights[i].light_fov), 1, dot(-L, lights[i].light_direction));
 			}
 
 			// Final Calculation

@@ -122,7 +122,7 @@ bool Renderer::InitialiseGeometry()
 	
 	modelInfomation = std::vector<SMeshLoadData*>
 	{
-		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(-180, 180, 180)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
+		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(180, 180, 0)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
 		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(1.f, 0.5f, 0.5f), 300, 20.0f),
 		new SMeshLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
 		
@@ -134,8 +134,8 @@ bool Renderer::InitialiseGeometry()
 				new SMeshLoadData(ERenderableType::eModel, "Aqua_Gun", "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 		
 		new SMeshLoadData(ERenderableType::eModel, "Jeep", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10, 11}, Transform(glm::vec3(-300, 150, 0), glm::vec3(0, 0, 0), glm::vec3(0.5))),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(1, 0, 0), 500, 20.0),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(180, 0, 0)), ELightType::eSpot, 35, glm::vec3(0, 0, 1), 500, 20.0),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(120, 0, 0)), ELightType::eSpot, 35, glm::vec3(1, 0, 0), 500, 20.0),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(120, 0, 0)), ELightType::eSpot, 35, glm::vec3(0, 0, 1), 500, 20.0),
 		new STerrainLoadData(ERenderableType::eTerrain, "MainTerrain", Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
 	};
 

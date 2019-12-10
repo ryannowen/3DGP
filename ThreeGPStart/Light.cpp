@@ -56,32 +56,14 @@ void Light::ApplyLight(GLuint argProgram)
 		transform = glm::scale(transform, parentTransform.GetScale());
 	}
 
-	/// Decompresses matrix (Function requires all parameters)
-	glm::vec3 scale;
-	glm::quat rotation;
-	glm::vec3 translation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-
-	glm::decompose(transform, scale, rotation, translation, skew, perspective);
-	rotation = glm::conjugate(rotation);
-
-
-	if (numOfLights == 2)
-	{
-		std::cout << "Jeep Rot " << parents[0]->currentTransform.GetRotation().y << std::endl;
-		std::cout << "Light Rot " << currentTransform.GetRotation().y << std::endl;
-		std::cout << "Calculated Rot " << rotation.y << std::endl << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-	}
-
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
 
 	GLuint light_position_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_position").c_str());
-	glUniform3fv(light_position_id, 1, glm::value_ptr(translation));
+	glUniform3fv(light_position_id, 1, glm::value_ptr(transform * glm::vec4(0,0,0,1)));
 
 	GLuint light_direction_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_direction").c_str());
-	glUniform3fv(light_direction_id, 1, glm::value_ptr(glm::vec3(rotation.x, -rotation.y, rotation.z)));
+	glUniform3fv(light_direction_id, 1, glm::value_ptr(transform * glm::vec4(1,1,1,0)));
 
 	GLuint light_fov_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_fov").c_str());
 	glUniform1f(light_fov_id, light_fov);

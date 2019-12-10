@@ -85,7 +85,7 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 	Helpers::Material mat;
 
 	mat.diffuseTextureFilename = argTextureName;
-	mat.specularFactor = 0;
+	mat.specularFactor = 2000;
 
 	CreateTexture(mat);
 }
