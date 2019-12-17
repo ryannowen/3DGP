@@ -19,6 +19,7 @@ public:
 
 	Light(const std::string& argName, const ELightType argLightType = ELightType::ePoint, const Transform argTransform = Transform(), const float argLightFOV = 5.0f, const glm::vec3 argLightColour = glm::vec3(1), const float argLightRange = 200.0f, const float argLightIntensity = 10.0f);
 
+	/// Public due to mainly being a data driven class
 	ELightType light_type;
 	float light_fov;
 	glm::vec3 light_colour;

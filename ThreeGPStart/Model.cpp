@@ -5,16 +5,16 @@
 
 Model::Model(const Transform& argTransform, const std::string& argName, const bool argHasLighting)
 	: Renderable(argTransform, argName), hasLighting(argHasLighting)
-{
+{}
 
-
-}
 
 Model::~Model()
 {
+	/// Deletes all buffers of each submesh
 	for (SModelData& mesh : subMeshes)
 		glDeleteBuffers(1, &mesh.VAO);
 
+	/// Deletes all children
 	for (Renderable* renderable : children)
 		delete renderable;
 }
@@ -58,14 +58,15 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 
 void Model::LoadMesh(const std::string& argModelPath)
 {
+	/// Loads model for renderable, returns if failure
 	Helpers::ModelLoader renderable;
-
 	if (!renderable.LoadFromFile(argModelPath))
 	{
 		std::cerr << "ERROR: Couldn't load Model from file path, path = " << argModelPath << std::endl;
 		return;
 	}
 
+	/// Creates geometry and texture for each loaded mesh
 	for (int i = 0; i < renderable.GetMeshVector().size(); i++)
 	{
 		CreateGeometry(renderable.GetMeshVector()[i]);
@@ -73,6 +74,7 @@ void Model::LoadMesh(const std::string& argModelPath)
 	}
 }
 
+/// Searches through all children, and their children looking for a child name.
 Renderable* Model::FindChild(const std::string& argChildName)
 {
 	if (name == argChildName)
@@ -81,22 +83,27 @@ Renderable* Model::FindChild(const std::string& argChildName)
 	{
 		for (Renderable* child : children)
 		{
+			/// Returns child if it is the correct name
 			if (child->GetName() == argChildName)
 				return child;
 			else
 			{
-				Renderable* foundChild{ static_cast<Model*>(child)->FindChild(argChildName) };
+				/// Searches through children of child
+				Renderable* foundChild{ child->FindChild(argChildName) };
 				if (foundChild != nullptr)
 					return foundChild;
 			}
 		}
 
+		/// If child isn't found anywhere
 		return nullptr;
 	}
 }
 
+/// Calculates transform from parents transform, for later when rendering
 void Model::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
 {
+	/// Uses glm to apply transformations 
 	argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
 
 	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
@@ -105,6 +112,7 @@ void Model::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
 
 	argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
 
+	/// Updates this transform to newly calculated one
 	transform = argParentTransform;
 
 	/// Calculates transform for all children
@@ -114,6 +122,7 @@ void Model::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
 	}
 }
 
+/// Creates OpenGL buffers for rendering any renderables
 void Model::CreateGeometry(const Helpers::Mesh& argMesh)
 {
 	/// Reference to Objects
@@ -163,7 +172,7 @@ void Model::CreateGeometry(const Helpers::Mesh& argMesh)
 	/// Binds Elements
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsEBO);
 
-
+	/// Adds submesh to be able to render later
 	SModelData newModelData(m_VAO, argMesh.elements.size());
 	subMeshes.push_back(newModelData);
 
@@ -191,6 +200,7 @@ void Model::CreateTexture(const Helpers::Material& argMat)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.Width(), texture.Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.GetData());
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	/// Sets most recent submeshs material to loaded one (Will always be the case, Possiblly MissingTexture.jpg)
 	Material newMat(glm::vec3(0), argMat.specularColour, argMat.specularFactor, textureRef);
 	subMeshes.back().material = newMat;
 }

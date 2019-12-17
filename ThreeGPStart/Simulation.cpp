@@ -6,8 +6,8 @@ bool Simulation::Initialise()
 {
 	// Set up camera
 	m_camera = std::make_shared<Helpers::Camera>();
-	m_camera->Initialise(glm::vec3(0, 600, 1500), glm::vec3(0)); // Jeep
-	//m_camera->Initialise(glm::vec3(-13.82f, 5.0f, 1.886f), glm::vec3(0.25f, 1.5f, 0), 30.0f,0.8f); // Aqua pig
+	m_camera->Initialise(glm::vec3(-749.5, 1034.1, 1223.6), glm::vec3(0.5531, 0.52512, 0));
+
 
 	std::cout << "Jeep Controls" << std::endl;
 	std::cout << "Num8, Num4, Num5, Num6 - moves the jeep left, right (x axis) and into and out of the scene (Z axis)" << std::endl;
@@ -46,7 +46,7 @@ bool Simulation::HandleInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // Back
 		pos1.z = 10;
 
-
+	/// Jeep
 	Model* jeep_spin = static_cast<Model*>(m_renderer->FindRenderable("Jeep_Spin"));
 	if (jeep_spin != nullptr)
 	{
@@ -54,24 +54,29 @@ bool Simulation::HandleInput(GLFWwindow* window)
 		jeep_spin->currentTransform.AddRotation(glm::vec3(0, 2, 0));
 	}
 
+	/// Point Light movement
 	Light* point = static_cast<Light*>(m_renderer->FindRenderable("Light_Point"));
 	if (point != nullptr)
 	{
 		point->currentTransform.AddPosition(sin(glm::vec3(5,0,0) * m_lastTime) * 20.0f);
 	}
 
+	/// Aquapig Hull
 	Model* AquaPig{ static_cast<Model*>(m_renderer->FindRenderable("Aqua_Hull")) };
 	if (AquaPig != nullptr)
 	{
+		/// Aquapig Prop
 		Renderable* propeller{ AquaPig->FindChild("Aqua_Propeller") };
 		if (propeller != nullptr)
 			static_cast<Model*>(propeller)->currentTransform.AddRotation(glm::vec3(0, 10, 0));
 
+		/// Aquapig Gunbase
 		Renderable* gunbase{ AquaPig->FindChild("Aqua_Gunbase") };
 		if (gunbase != nullptr)
 		{
 			static_cast<Model*>(gunbase)->currentTransform.AddRotation(glm::vec3(0, sin(2 * m_lastTime) + 0.5, 0));
 
+			/// Aquapig Gun
 			Renderable* gun{ static_cast<Model*>(gunbase)->FindChild("Aqua_Gun") };
 			if (gun != nullptr)
 				static_cast<Model*>(gun)->currentTransform.AddRotation(glm::vec3(sin(5 * m_lastTime) * -2, 0, 0));

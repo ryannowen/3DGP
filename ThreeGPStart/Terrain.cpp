@@ -2,15 +2,13 @@
 
 #include "PerlinNoise.h"
 
-Terrain::Terrain()
+Terrain::Terrain(const Transform& argTransform, const std::string& argName, const bool argHasLighting)
+	: Model(argTransform, argName, argHasLighting)
 {
 }
 
 void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, const float argSizeX, const float argSizeZ, const int argTextureTilingX, const int argTextureTilingZ, const std::string& argTextureName, const std::string& argDisplacementMapPath)
 {
-	xTiling = argTextureTilingX;
-	zTiling = argTextureTilingZ;
-
 	int numOfCellsX{ argNumCellsX };
 	int numOfCellsZ{ argNumCellsZ };
 
@@ -23,8 +21,6 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 	float worldPositionX{ -argSizeX / 2.0f };
 	float worldPositionZ{ argSizeZ / 2.0f };
 
-	float height{ 0.0f };
-
 	/// Sets vertex locations and applies initial upward facing normals
 	for (int z = 0; z < numOfVertsZ; z++)
 	{
@@ -34,16 +30,16 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 
 			/// Applies initial vert height using perlin noise
 			glm::vec3 currentVert{ terrainMesh.vertices.back() };
-			terrainMesh.vertices.back().y = PerlinNoise::Perlin(currentVert.x, currentVert.z) * 5;
+			currentVert.y = PerlinNoise::Perlin(currentVert.x, currentVert.z) * 5;
 
-			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfCellsX) * xTiling, z / static_cast<float>(numOfCellsZ) * zTiling));
+			terrainMesh.uvCoords.push_back(glm::vec2(x / static_cast<float>(numOfCellsX) * argTextureTilingX, z / static_cast<float>(numOfCellsZ) * argTextureTilingZ));
 			terrainMesh.normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 	}
 
 	ApplyDisplacementMap(argDisplacementMapPath, numOfVertsX, numOfVertsZ);
 
-	/// Creates Diamond Grid Elements
+	/// Creates Diamond Grid Elements by toggling between directions
 	bool diamondToggle{ true };
 	for (int z = 0; z < numOfCellsZ; z++)
 	{
@@ -78,22 +74,22 @@ void Terrain::CreateTerrain(const int argNumCellsX, const int argNumCellsZ, cons
 		diamondToggle = !diamondToggle;
 	}
 
+	/// Calculates normals and then creates the terrain geometry
 	CalculateNormals();
-
 	CreateGeometry(terrainMesh);
 
+	/// Creates texture for terrain, also applies specular value due to texture not having one
 	Helpers::Material mat;
-
 	mat.diffuseTextureFilename = argTextureName;
 	mat.specularFactor = 2000;
-
 	CreateTexture(mat);
 }
 
+/// Calculates normals using cross product of Triangle edges
 void Terrain::CalculateNormals()
 {
 	/// Updates Vertex Normals
-	for (int i = 0; i < terrainMesh.elements.size(); i += 3)
+	for (size_t i = 0; i < terrainMesh.elements.size(); i += 3)
 	{
 		glm::vec3 edge1{ terrainMesh.vertices[terrainMesh.elements[i + 1]] - terrainMesh.vertices[terrainMesh.elements[i]] };
 		glm::vec3 edge2{ terrainMesh.vertices[terrainMesh.elements[i + 2]] - terrainMesh.vertices[terrainMesh.elements[i]] };
@@ -108,35 +104,45 @@ void Terrain::CalculateNormals()
 
 void Terrain::ApplyDisplacementMap(const std::string& argDisplacementMapPath, const int argNumOfVertsX, const int argNumOfVertsZ)
 {
-	if (argDisplacementMapPath != std::string())
+	if (argDisplacementMapPath == std::string())
 	{
-		GLubyte* heightData{ NULL };
+		std::cerr << "ERROR: No displacement map name given" << std::endl;
+		return;
+	}
 
-		if (texture.Load(argDisplacementMapPath))
+	/// Loads displacement map, if fails returns and outputs error
+	Helpers::ImageLoader texture;
+	if (!texture.Load(argDisplacementMapPath))
+	{
+		std::cerr << "ERROR: Couldn't find displacement map, path=" << argDisplacementMapPath << std::endl;
+		return;
+	}
+
+	GLubyte* heightData{ NULL };
+
+	heightData = (GLubyte*)texture.GetData();
+
+	float vertXScale{ static_cast<float>(texture.Width()) / argNumOfVertsX};
+	float vertZScale{ static_cast<float>(texture.Height()) / argNumOfVertsZ };
+
+	size_t currentVert = 0;
+
+	/// Adds displacement map height to current height
+	for (int z = 0; z < argNumOfVertsZ; z++)
+	{
+		for (int x = 0; x < argNumOfVertsX; x++)
 		{
-			heightData = (GLubyte*)texture.GetData();
+			float imageX{ vertXScale * x };
+			float imageZ{ vertZScale * z };
 
-			float vertXScale{ static_cast<float>(texture.Width()) / argNumOfVertsX};
-			float vertZScale{ static_cast<float>(texture.Height()) / argNumOfVertsZ };
+			size_t offset{ (static_cast<size_t>(imageX) + static_cast<size_t>(imageZ) * texture.Width()) * 4 };
 
-			size_t currentVert = 0;
+			terrainMesh.vertices[currentVert].y += heightData[offset];
 
-			for (int z = 0; z < argNumOfVertsZ; z++)
-			{
-				for (int x = 0; x < argNumOfVertsX; x++)
-				{
-					float imageX{ vertXScale * x };
-					float imageZ{ vertZScale * z };
-
-					size_t offset{ (static_cast<size_t>(imageX) + static_cast<size_t>(imageZ) * texture.Width()) * 4 };
-
-					terrainMesh.vertices[currentVert].y += heightData[offset];
-
-					currentVert += 1;
-				}
-			}
-
-			CalculateNormals();
+			currentVert += 1;
 		}
 	}
+
+	/// Recalculates normals after applying new heights
+	CalculateNormals();
 }

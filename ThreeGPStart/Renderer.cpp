@@ -13,12 +13,9 @@ Renderer::~Renderer()
 {
 	glDeleteProgram(m_program);
 
+	/// Deletes all renderables (Recursively deleting their children too)
 	for (Renderable* renderable : renderables)
 		delete renderable;
-
-	for (SRenderableLoadData* info : modelInfomation)
-		delete info;
-
 }
 
 
@@ -55,18 +52,19 @@ bool Renderer::CreateProgram()
 	return !Helpers::CheckForGLError();
 }
 
+/// Creates a renderable out of model information
 void Renderer::CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation)
 {
 	argLoadData->isCreated = true;
 
-
 	if (argLoadData->argRenderableType == ERenderableType::eSkybox)
 	{
+		/// Adds renderable to vector, then loads its mesh
 		argMeshLocation.push_back(new Skybox(argLoadData->relativeTransform, argLoadData->name, false));
-
 		Skybox* skybox = static_cast<Skybox*>(argMeshLocation.back());
 		skybox->LoadMesh(argLoadData->meshPath);
 
+		/// Recursively loads any children for renderable
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
 			if(i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
@@ -76,11 +74,12 @@ void Renderer::CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Re
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eModel)
 	{
+		/// Adds renderable to vector, then loads its mesh
 		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, argLoadData->name, true));
-
 		Model* model = static_cast<Model*>(argMeshLocation.back());
 		model->LoadMesh(argLoadData->meshPath);
 
+		/// Recursively loads any children for renderable
 		for (int childID : argLoadData->childrenIDs)
 		{
 			if (modelInfomation[childID] != argLoadData)
@@ -90,8 +89,8 @@ void Renderer::CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Re
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eTerrain)
 	{
-		argMeshLocation.push_back(new Terrain());
-
+		/// Adds renderable to vector, then loads the terrain using the load data
+		argMeshLocation.push_back(new Terrain(argLoadData->relativeTransform, argLoadData->name, true));
 		Terrain* terrain{ static_cast<Terrain*>(argMeshLocation.back()) };
 		STerrainLoadData* terriainData = static_cast<STerrainLoadData*>(argLoadData);
 
@@ -99,11 +98,12 @@ void Renderer::CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Re
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eLight)
 	{
+		/// Adds renderable to vector
 		Light* light{ new Light(argLoadData->name) };
 		argMeshLocation.push_back(light);
-
 		SLightLoadData* lightData = static_cast<SLightLoadData*>(argLoadData);
 
+		/// Sets all light information
 		light->light_type = lightData->light_type;
 		light->currentTransform = lightData->relativeTransform;
 		light->light_fov = lightData->light_fov;
@@ -120,9 +120,10 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateProgram())
 		return false;
 	
+	/// Holds all the information for loading each renderable
 	modelInfomation = std::vector<SRenderableLoadData*>
 	{
-		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(180, 180, 0)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.20f),
+		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(180, 180, 0)), ELightType::eDirectional,  0.0f, glm::vec3(1, 0.5, 0.5), 0, 1.5f),
 		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(1.f, 0.5f, 0.5f), 300, 20.0f),
 		new SRenderableLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
 		
@@ -147,12 +148,18 @@ bool Renderer::InitialiseGeometry()
 			CreateRenderable(data, renderables);
 		}
 	}
+
+	/// Deletes all model information
+	for (SRenderableLoadData* info : modelInfomation)
+		delete info;
+
 	// Always a good idea, when debugging at least, to check for GL errors
 	Helpers::CheckForGLError();
 
 	return true;
 }
 
+/// Searches through all roots of renderables
 Renderable* Renderer::FindRenderable(const std::string& argName) const
 {
 	for (Renderable* renderable : renderables)

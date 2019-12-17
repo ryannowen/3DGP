@@ -20,15 +20,9 @@ Light::Light(const std::string& argName, const ELightType argLightType, const Tr
 {	
 }
 
+/// Sends light data to shader as uniforms
 void Light::ApplyLight(GLuint argProgram)
 {
-	if (disabled)
-	{
-		std::cout << "Light " << name << " disabled, not applying" << std::endl;
-		return;
-	}
-
-
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
 
@@ -50,15 +44,19 @@ void Light::ApplyLight(GLuint argProgram)
 	GLuint light_intensity_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_intensity").c_str());
 	glUniform1f(light_intensity_id, light_intensity);
 	
+	/// Increases numofLights for next light sending
 	numOfLights++;
 }
 
+/// Empty due to not being needed
 void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const
 {
 }
 
+/// Calculates transform from parents transform, then applies the light
 void Light::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
 {
+	/// Uses glm to apply transformations 
 	argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
 
 	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
@@ -69,6 +67,6 @@ void Light::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
 
 	transform = argParentTransform;
 
+	/// Applies light
 	ApplyLight(argProgram);
-
 }

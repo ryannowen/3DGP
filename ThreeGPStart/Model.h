@@ -35,9 +35,7 @@ public:
 
 	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const override;
 	void LoadMesh(const std::string& argModelPath);
-	Renderable* FindChild(const std::string& argChildName);
+	virtual Renderable* FindChild(const std::string& argChildName) override final;
 	virtual void CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram) override final;
-
-	std::vector<Renderable*>& GetChildren() { return children; };
 };
 

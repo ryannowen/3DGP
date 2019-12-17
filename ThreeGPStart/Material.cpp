@@ -5,6 +5,7 @@ Material::Material(const glm::vec3 argAmbientColour, const glm::vec3 argSpecular
 {
 }
 
+/// Activates and binds material to shaders
 void Material::ApplyMaterial(GLuint argProgram) const
 {
 	glActiveTexture(GL_TEXTURE0);

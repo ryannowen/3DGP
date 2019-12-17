@@ -68,7 +68,6 @@ class Renderer
 {
 private:
 	std::vector<SRenderableLoadData*> modelInfomation;
-	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
 	std::vector<Renderable*> renderables;
 
 	// Program object - to host shaders

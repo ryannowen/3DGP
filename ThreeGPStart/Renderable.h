@@ -7,7 +7,6 @@
 class Renderable
 {
 protected:
-	bool disabled{ false };
 	std::string name;
 	glm::mat4 transform{ glm::mat4(1) };
 
@@ -19,5 +18,6 @@ public:
 
 	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argView_Xform) const = 0;
 	virtual void CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram) = 0;
+	virtual Renderable* FindChild(const std::string& argChildName);
 };
 
