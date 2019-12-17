@@ -30,14 +30,14 @@ protected:
 
 public:
 	std::vector<Renderable*> children;
-	Model(const Transform& argTransform = Transform(), const std::string& argName = std::string(), const bool argHasLighting = true, Renderable* argParent = NULL);
+	Model(const Transform& argTransform = Transform(), const std::string& argName = std::string(), const bool argHasLighting = true);
 	~Model();
 
-	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const override;
+	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const override;
 	void LoadMesh(const std::string& argModelPath);
 	Renderable* FindChild(const std::string& argChildName);
+	virtual void CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram) override final;
 
 	std::vector<Renderable*>& GetChildren() { return children; };
-
 };
 

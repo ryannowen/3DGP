@@ -9,6 +9,10 @@ bool Simulation::Initialise()
 	m_camera->Initialise(glm::vec3(0, 600, 1500), glm::vec3(0)); // Jeep
 	//m_camera->Initialise(glm::vec3(-13.82f, 5.0f, 1.886f), glm::vec3(0.25f, 1.5f, 0), 30.0f,0.8f); // Aqua pig
 
+	std::cout << "Jeep Controls" << std::endl;
+	std::cout << "Num8, Num4, Num5, Num6 - moves the jeep left, right (x axis) and into and out of the scene (Z axis)" << std::endl;
+	std::cout << "Num7 and Num9 - moves the jeep up and down the Y axis.\n\n" << std::endl;
+
 	// Set up renderer
 	m_renderer = std::make_shared<Renderer>();
 	return m_renderer->InitialiseGeometry();
@@ -29,32 +33,25 @@ bool Simulation::HandleInput(GLFWwindow* window)
 
 	glm::vec3 pos1(0);
 
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) // Right
+	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) // Right
 		pos1.x = 10;
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // Left
+	else if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) // Left
 		pos1.x = -10;
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) // Up
+	if (glfwGetKey(window, GLFW_KEY_KP_9) == GLFW_PRESS) // Up
 		pos1.y = -10;
-	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) // Down
+	else if (glfwGetKey(window, GLFW_KEY_KP_7) == GLFW_PRESS) // Down
 		pos1.y = 10;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) // Forward
+	if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) // Forward
 		pos1.z = -10;
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) // Back
+	else if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // Back
 		pos1.z = 10;
 
 
-	Model* jeep = static_cast<Model*>(m_renderer->FindRenderable("Jeep"));
-	if (jeep != nullptr)
+	Model* jeep_spin = static_cast<Model*>(m_renderer->FindRenderable("Jeep_Spin"));
+	if (jeep_spin != nullptr)
 	{
-		jeep->currentTransform.AddPosition(pos1);
-		jeep->currentTransform.AddRotation(glm::vec3(0, 2, 0));
-	}
-
-	Light* spot = static_cast<Light*>(m_renderer->FindRenderable("Light_Spot_Right"));
-	if (spot != nullptr)
-	{
-		//spot->currentTransform.AddPosition(pos1);
-		//spot->currentTransform.AddRotation(glm::vec3(0, 0.1f, 0));
+		jeep_spin->currentTransform.AddPosition(pos1);
+		jeep_spin->currentTransform.AddRotation(glm::vec3(0, 2, 0));
 	}
 
 	Light* point = static_cast<Light*>(m_renderer->FindRenderable("Light_Point"));

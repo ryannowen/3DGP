@@ -8,15 +8,16 @@ class Renderable
 {
 protected:
 	bool disabled{ false };
-	Transform oldTransform;
-	
-public:
-	Renderable(const Transform argTransform, Renderable* argParent, const std::string& argName);
-	//~Renderable();
-	Renderable* parent{ NULL };
-	const std::string name;
-	Transform currentTransform;
-	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argView_Xform, glm::mat4 argParentTransform) const = 0;
+	std::string name;
+	glm::mat4 transform{ glm::mat4(1) };
 
+public:
+	Renderable(const Transform argTransform, const std::string& argName);
+	Transform currentTransform;
+
+	const std::string& GetName() const { return name; };
+
+	virtual void Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argView_Xform) const = 0;
+	virtual void CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram) = 0;
 };
 

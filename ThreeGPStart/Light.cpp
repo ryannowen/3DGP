@@ -15,8 +15,8 @@ void Light::SendNumOfLights(GLuint argProgram)
 	numOfLights = 0;
 }
 
-Light::Light(Renderable* argParent, const std::string& argName, const ELightType argLightType, const Transform argTransform, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
-	:	Renderable(argTransform, argParent, argName), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
+Light::Light(const std::string& argName, const ELightType argLightType, const Transform argTransform, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
+	:	Renderable(argTransform, argName), light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
 {	
 }
 
@@ -24,37 +24,10 @@ void Light::ApplyLight(GLuint argProgram)
 {
 	if (disabled)
 	{
-		std::cout << name << " disabled, not applying" << std::endl;
+		std::cout << "Light " << name << " disabled, not applying" << std::endl;
 		return;
 	}
 
-	Renderable* currentParent{ this };
-	glm::mat4 transform = glm::mat4(1);
-
-	std::vector<Renderable*> parents;
-
-	while (currentParent != NULL)
-	{
-		parents.push_back(currentParent);
-
-		currentParent = currentParent->parent;
-	}
-
-	std::reverse(std::begin(parents), std::end(parents));
-
-	for (Renderable* cParent : parents)
-	{
-		Transform parentTransform{ cParent->currentTransform };
-
-		/// Adds Current transform to matrix
-		transform = glm::translate(transform, parentTransform.GetPosition());
-
-		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().x), glm::vec3(1, 0, 0));
-		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().y), glm::vec3(0, 1, 0));
-		transform = glm::rotate(transform, glm::radians(parentTransform.GetRotation().z), glm::vec3(0, 0, 1));
-
-		transform = glm::scale(transform, parentTransform.GetScale());
-	}
 
 	GLuint light_type_id = glGetUniformLocation(argProgram, std::string("lights[" + std::to_string(numOfLights) + "].light_type").c_str());
 	glUniform1i(light_type_id, static_cast<int>(light_type));
@@ -80,6 +53,22 @@ void Light::ApplyLight(GLuint argProgram)
 	numOfLights++;
 }
 
-void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const
+void Light::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const
 {
+}
+
+void Light::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
+{
+	argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
+
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
+
+	argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
+
+	transform = argParentTransform;
+
+	ApplyLight(argProgram);
+
 }

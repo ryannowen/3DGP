@@ -1,19 +1,25 @@
 #include "Model.h"
 
 #include "ImageLoader.h"
+#include "AssetManager.h"
 
-Model::Model(const Transform& argTransform, const std::string& argName, const bool argHasLighting, Renderable* argParent)
-	: Renderable(argTransform, argParent, argName), hasLighting(argHasLighting)
+Model::Model(const Transform& argTransform, const std::string& argName, const bool argHasLighting)
+	: Renderable(argTransform, argName), hasLighting(argHasLighting)
 {
+
+
 }
 
 Model::~Model()
 {
+	for (SModelData& mesh : subMeshes)
+		glDeleteBuffers(1, &mesh.VAO);
+
 	for (Renderable* renderable : children)
 		delete renderable;
 }
 
-void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const
+void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const
 {		
 	/// Creates View Matrix for camera
 	glm::mat4 view_xform = glm::lookAt(argCamera.GetPosition(), argCamera.GetPosition() + argCamera.GetLookVector(), argCamera.GetUpVector());
@@ -34,16 +40,8 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	{
 		mesh.material.ApplyMaterial(argProgram);
 
-		argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
-
-		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
-		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
-		argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
-
-		argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
-
 		/// Sends model transformation info as uniform to shader
-		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(argParentTransform));
+		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(transform));
 
 		/// Binds and Draws mesh VAO
 		glBindVertexArray(mesh.VAO);
@@ -54,24 +52,24 @@ void Model::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm:
 	/// Renders all children
 	for (const Renderable* renderable : children)
 	{
-		renderable->Draw(argProgram, argCamera, argProjection_Xform, argParentTransform);
+		renderable->Draw(argProgram, argCamera, argProjection_Xform);
 	}
 }
 
 void Model::LoadMesh(const std::string& argModelPath)
 {
-	Helpers::ModelLoader renderables;
+	Helpers::ModelLoader renderable;
 
-	if (!renderables.LoadFromFile(argModelPath))
+	if (!renderable.LoadFromFile(argModelPath))
 	{
 		std::cerr << "ERROR: Couldn't load Model from file path, path = " << argModelPath << std::endl;
 		return;
 	}
 
-	for (int i = 0; i < renderables.GetMeshVector().size(); i++)
+	for (int i = 0; i < renderable.GetMeshVector().size(); i++)
 	{
-		CreateGeometry(renderables.GetMeshVector()[i]);
-		CreateTexture(renderables.GetMaterialVector()[i]);
+		CreateGeometry(renderable.GetMeshVector()[i]);
+		CreateTexture(renderable.GetMaterialVector()[i]);
 	}
 }
 
@@ -83,7 +81,7 @@ Renderable* Model::FindChild(const std::string& argChildName)
 	{
 		for (Renderable* child : children)
 		{
-			if (child->name == argChildName)
+			if (child->GetName() == argChildName)
 				return child;
 			else
 			{
@@ -94,6 +92,25 @@ Renderable* Model::FindChild(const std::string& argChildName)
 		}
 
 		return nullptr;
+	}
+}
+
+void Model::CalculateTransform(glm::mat4 argParentTransform, GLuint argProgram)
+{
+	argParentTransform = glm::translate(argParentTransform, currentTransform.GetPosition());
+
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().x), glm::vec3(1, 0, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().y), glm::vec3(0, 1, 0));
+	argParentTransform = glm::rotate(argParentTransform, glm::radians(currentTransform.GetRotation().z), glm::vec3(0, 0, 1));
+
+	argParentTransform = glm::scale(argParentTransform, currentTransform.GetScale());
+
+	transform = argParentTransform;
+
+	/// Calculates transform for all children
+	for (Renderable* renderable : children)
+	{
+		renderable->CalculateTransform(transform, argProgram);
 	}
 }
 
@@ -160,13 +177,8 @@ void Model::CreateGeometry(const Helpers::Mesh& argMesh)
 void Model::CreateTexture(const Helpers::Material& argMat)
 {
 	/// Loads Texture from file
-	Helpers::ImageLoader texture;
-	if (!texture.Load("Data\\Textures\\" + argMat.diffuseTextureFilename))
-	{
-		std::cout << "Loading MissingTexture texture" << std::endl;
-		if (!texture.Load("Data\\Textures\\MissingTexture.jpg"))
-			return;
-	}
+	Helpers::ImageLoader texture{ ASSETS.LoadImage(argMat.diffuseTextureFilename) };
+
 	GLuint textureRef;
 
 	/// Generates texture
@@ -181,6 +193,4 @@ void Model::CreateTexture(const Helpers::Material& argMat)
 
 	Material newMat(glm::vec3(0), argMat.specularColour, argMat.specularFactor, textureRef);
 	subMeshes.back().material = newMat;
-
-
 }

@@ -7,7 +7,7 @@ Skybox::Skybox(const Transform& argTransform, const std::string& argName, const 
 
 }
 
-void Skybox::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform, glm::mat4 argParentTransform) const
+void Skybox::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm::mat4& argProjection_Xform) const
 {
 	/// Creates View Matrix for camera
 	glm::mat4 view_xform = glm::lookAt(argCamera.GetPosition(), argCamera.GetPosition() + argCamera.GetLookVector(), argCamera.GetUpVector());
@@ -51,6 +51,6 @@ void Skybox::Draw(GLuint argProgram, const Helpers::Camera& argCamera, const glm
 	/// Renders all children
 	for (const Renderable* renderable : children)
 	{
-		renderable->Draw(argProgram, argCamera, argProjection_Xform, argParentTransform);
+		renderable->Draw(argProgram, argCamera, argProjection_Xform);
 	}
 }

@@ -104,9 +104,6 @@ void Terrain::CalculateNormals()
 		terrainMesh.normals[terrainMesh.elements[i + 1]] += normal;
 		terrainMesh.normals[terrainMesh.elements[i + 2]] += normal;
 	}
-
-	//for (glm::vec3& normal : terrainMesh.normals)
-		//normal = glm::normalize(normal);
 }
 
 void Terrain::ApplyDisplacementMap(const std::string& argDisplacementMapPath, const int argNumOfVertsX, const int argNumOfVertsZ)

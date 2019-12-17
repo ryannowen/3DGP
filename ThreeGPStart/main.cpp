@@ -21,6 +21,7 @@
 #include "ExternalLibraryHeaders.h"
 #include "Helper.h"
 #include "Simulation.h"
+#include "AssetManager.h"
 
 int main()
 {

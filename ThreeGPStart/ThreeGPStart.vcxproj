@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="External\GLEW\glew.c" />
     <ClCompile Include="Helper.cpp" />
@@ -184,6 +185,7 @@
     <None Include="Data\Shaders\vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ExternalLibraryHeaders.h" />
     <ClInclude Include="Helper.h" />

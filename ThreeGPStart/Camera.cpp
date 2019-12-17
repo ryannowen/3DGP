@@ -16,10 +16,10 @@ namespace Helpers
 
 		std::cout << "\nCamera Controls" << std::endl;
 		std::cout << "WASD - moves the camera left, right (x axis) and into and out of the scene (Z axis)" << std::endl;
-		std::cout << "Up and Down arrows - moves the camera up and down the Y axis." << std::endl;
+		std::cout << "Q and E - moves the camera up and down the Y axis." << std::endl;
 		std::cout << "Space Bar - resets the view to its initial state." << std::endl;
 		std::cout << "Hold the left mouse button while moving the mouse to rotate the camera" << std::endl;
-		std::cout << "Holding left CTRL key accelerates movement and rotation" << std::endl << std::endl;
+		std::cout << "Holding left CTRL key accelerates movement" << std::endl << std::endl;
 	}
 
 	// To avoid large values I like to clamp rotations to 0-359 degrees

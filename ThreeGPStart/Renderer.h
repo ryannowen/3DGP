@@ -22,9 +22,9 @@ enum class ERenderableType
 	eLight
 };
 
-struct SMeshLoadData
+struct SRenderableLoadData
 {
-	SMeshLoadData(const ERenderableType argRenderableType, const std::string argName, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
+	SRenderableLoadData(const ERenderableType argRenderableType, const std::string argName, const std::string& argMeshPath, const std::vector<int>& argChildrenIDs, const Transform argRelativeTransform)
 		: argRenderableType(argRenderableType), name(argName), meshPath(argMeshPath), childrenIDs(argChildrenIDs), relativeTransform(argRelativeTransform)
 	{}
 
@@ -36,10 +36,10 @@ struct SMeshLoadData
 	bool isCreated{ false };
 };
 
-struct STerrainLoadData : public SMeshLoadData
+struct STerrainLoadData : public SRenderableLoadData
 {
 	STerrainLoadData(const ERenderableType argRenderableType, const std::string argName, const Transform argRelativeTransform, const int argNumCellsX = 50, const int argNumCellsZ = 50, const float argSizeX = 1000.0f, const float argSizeZ = 1000.0f, const int argTextureTilingX = 1, const int argTextureTilingZ = 1, const std::string& argTextureFilePath = "Data\\Textures\\MissingTexture.jpg", const std::string& argDisplacementMapPath = std::string())
-		: SMeshLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
+		: SRenderableLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
 		numCellsX(argNumCellsX), numCellsZ(argNumCellsZ), sizeX(argSizeX), sizeZ(argSizeZ), textureTilingX(argTextureTilingX), textureTilingZ(argTextureTilingZ), textureFilePath(argTextureFilePath), displacementMapPath(argDisplacementMapPath)
 	{}
 
@@ -49,10 +49,10 @@ struct STerrainLoadData : public SMeshLoadData
 	std::string displacementMapPath;
 };
 
-struct SLightLoadData : public SMeshLoadData
+struct SLightLoadData : public SRenderableLoadData
 {
 	SLightLoadData(const ERenderableType argRenderableType, const std::string argName, const Transform argRelativeTransform, const ELightType argLightType, const float argLightFOV, const glm::vec3 argLightColour, const float argLightRange, const float argLightIntensity)
-		: SMeshLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
+		: SRenderableLoadData(argRenderableType, argName, std::string(), std::vector<int>(), argRelativeTransform),
 		light_type(argLightType), light_fov(argLightFOV), light_colour(argLightColour), light_range(argLightRange), light_intensity(argLightIntensity)
 	{}
 
@@ -67,18 +67,16 @@ struct SLightLoadData : public SMeshLoadData
 class Renderer
 {
 private:
-
-	std::vector<SMeshLoadData*> modelInfomation;
+	std::vector<SRenderableLoadData*> modelInfomation;
 	std::unordered_map<std::string, Helpers::ImageLoader> textureMap;
 	std::vector<Renderable*> renderables;
-	std::vector<Light*> lights;
 
 	// Program object - to host shaders
 	GLuint m_program{ 0 };
 
 	bool CreateProgram();
 	
-	void CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation, Renderable* argParent);
+	void CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation);
 
 public:
 	Renderer()=default;

@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "ImageLoader.h"
 
+#include "AssetManager.h"
 #include "Terrain.h"
 
 #include "Light.h"
@@ -11,13 +12,13 @@
 Renderer::~Renderer()
 {
 	glDeleteProgram(m_program);
-//	glDeleteBuffers(1, &m_VAO);
 
 	for (Renderable* renderable : renderables)
 		delete renderable;
 
-	for (SMeshLoadData* info : modelInfomation)
+	for (SRenderableLoadData* info : modelInfomation)
 		delete info;
+
 }
 
 
@@ -54,7 +55,7 @@ bool Renderer::CreateProgram()
 	return !Helpers::CheckForGLError();
 }
 
-void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation, Renderable* argParent)
+void Renderer::CreateRenderable(SRenderableLoadData* argLoadData, std::vector<Renderable*>& argMeshLocation)
 {
 	argLoadData->isCreated = true;
 
@@ -69,13 +70,13 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 		for (int i = 0; i < argLoadData->childrenIDs.size(); i++)
 		{
 			if(i < modelInfomation.size() && modelInfomation[argLoadData->childrenIDs[i]] != argLoadData)
-				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], skybox->children, skybox);
+				CreateRenderable(modelInfomation[argLoadData->childrenIDs[i]], skybox->children);
 		}
 		
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eModel)
 	{
-		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, argLoadData->name, true, argParent));
+		argMeshLocation.push_back(new Model(argLoadData->relativeTransform, argLoadData->name, true));
 
 		Model* model = static_cast<Model*>(argMeshLocation.back());
 		model->LoadMesh(argLoadData->meshPath);
@@ -83,7 +84,7 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 		for (int childID : argLoadData->childrenIDs)
 		{
 			if (modelInfomation[childID] != argLoadData)
-				CreateRenderable(modelInfomation[childID], model->children, model);
+				CreateRenderable(modelInfomation[childID], model->children);
 		}
 		
 	}
@@ -98,9 +99,8 @@ void Renderer::CreateRenderable(SMeshLoadData* argLoadData, std::vector<Renderab
 	}
 	else if (argLoadData->argRenderableType == ERenderableType::eLight)
 	{
-		Light* light{ new Light(argParent, argLoadData->name) };
+		Light* light{ new Light(argLoadData->name) };
 		argMeshLocation.push_back(light);
-		lights.push_back(light);
 
 		SLightLoadData* lightData = static_cast<SLightLoadData*>(argLoadData);
 
@@ -120,31 +120,31 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateProgram())
 		return false;
 	
-	modelInfomation = std::vector<SMeshLoadData*>
+	modelInfomation = std::vector<SRenderableLoadData*>
 	{
-		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(180, 180, 0)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.80f),
+		new SLightLoadData(ERenderableType::eLight, "Light_Sun", Transform(glm::vec3(0, 0, 0), glm::vec3(180, 180, 0)), ELightType::eDirectional,  0.0f, glm::vec3(1, 1, 1), 0, 0.20f),
 		new SLightLoadData(ERenderableType::eLight,"Light_Point", Transform(glm::vec3(400, 300, 0), glm::vec3(0, 0, 0)), ELightType::ePoint, 0.0f, glm::vec3(1.f, 0.5f, 0.5f), 300, 20.0f),
-		new SMeshLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
+		new SRenderableLoadData(ERenderableType::eSkybox, "Skybox", "Data\\Sky\\Hills\\skybox.x", std::vector<int>(), Transform()),
 		
-		new SMeshLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
-			new SMeshLoadData(ERenderableType::eModel, "Aqua_RWing", "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Aqua_LWing", "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Aqua_Propeller", "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
-			new SMeshLoadData(ERenderableType::eModel, "Aqua_Gunbase", "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{8}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
-				new SMeshLoadData(ERenderableType::eModel, "Aqua_Gun", "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+		new SRenderableLoadData(ERenderableType::eModel, "Aqua_Hull", "Data\\Models\\AquaPig\\hull.obj", std::vector<int>{4, 5, 6, 7}, Transform(glm::vec3(200, 100, 0), glm::vec3(0, 0, 0), glm::vec3(50))),
+			new SRenderableLoadData(ERenderableType::eModel, "Aqua_RWing", "Data\\Models\\AquaPig\\wing_right.obj", std::vector<int>(), Transform(glm::vec3(-2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			new SRenderableLoadData(ERenderableType::eModel, "Aqua_LWing", "Data\\Models\\AquaPig\\wing_left.obj", std::vector<int>(), Transform(glm::vec3(2.231, 0.272, -2.663), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+			new SRenderableLoadData(ERenderableType::eModel, "Aqua_Propeller", "Data\\Models\\AquaPig\\propeller.obj", std::vector<int>(), Transform(glm::vec3(0, 1.395, -3.616), glm::vec3(90, 0, 0), glm::vec3(1, 1, 1))),
+			new SRenderableLoadData(ERenderableType::eModel, "Aqua_Gunbase", "Data\\Models\\AquaPig\\gun_base.obj", std::vector<int>{8}, Transform(glm::vec3(0, 0.569, -1.866), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
+				new SRenderableLoadData(ERenderableType::eModel, "Aqua_Gun", "Data\\Models\\AquaPig\\gun.obj", std::vector<int>(), Transform(glm::vec3(0, 1.506, 0.644), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1))),
 		
-		new SMeshLoadData(ERenderableType::eModel, "Jeep", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10, 11}, Transform(glm::vec3(-300, 150, 0), glm::vec3(0, 0, 0), glm::vec3(0.5))),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(120, 0, 0)), ELightType::eSpot, 35, glm::vec3(1, 0, 0), 500, 20.0),
-			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(120, 0, 0)), ELightType::eSpot, 35, glm::vec3(0, 0, 1), 500, 20.0),
+		new SRenderableLoadData(ERenderableType::eModel, "Jeep_Spin", "Data\\Models\\Jeep\\jeep.obj", std::vector<int>{10, 11}, Transform(glm::vec3(-300, 100, 0), glm::vec3(0, 0, 0), glm::vec3(0.5))),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Left", Transform(glm::vec3(350, 250, -100), glm::vec3(120, 0, 0)), ELightType::eSpot, 90, glm::vec3(1, 0, 0), 500, 20.0),
+			new SLightLoadData(ERenderableType::eLight, "Light_Spot_Right", Transform(glm::vec3(350, 250, 100), glm::vec3(120, 0, 0)), ELightType::eSpot, 90, glm::vec3(0, 0, 1), 500, 20.0),
 		new STerrainLoadData(ERenderableType::eTerrain, "MainTerrain", Transform(), 256, 256, 6000, 6000, 50, 50, "Grass.jpg", "Data\\curvy.gif")
 	};
 
 	/// Loads Models
-	for (SMeshLoadData* data : modelInfomation)
+	for (SRenderableLoadData* data : modelInfomation)
 	{
 		if (!data->isCreated)
 		{
-			CreateRenderable(data, renderables, NULL);
+			CreateRenderable(data, renderables);
 		}
 	}
 	// Always a good idea, when debugging at least, to check for GL errors
@@ -157,7 +157,7 @@ Renderable* Renderer::FindRenderable(const std::string& argName) const
 {
 	for (Renderable* renderable : renderables)
 	{
-		if (renderable->name == argName)
+		if (renderable->GetName() == argName)
 			return renderable;
 	}
 
@@ -191,18 +191,19 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	float nearPlane{ 1.0f }, farPlane{ 12000.0f };
 	glm::mat4 projection_xform = glm::perspective(glm::radians(45.0f), aspectRatio, nearPlane, farPlane);
 
-	/// Sends all lights to shader, and updates the number of lights
-	for (Light* light : lights)
+	/// Calculates transforms for all renderables, also applies lights
+	for (Renderable* renderable : renderables)
 	{
-		light->ApplyLight(m_program);
+		renderable->CalculateTransform(glm::mat4(1), m_program);
 	}
 
+	/// Sends number of lights to shader, also resets total for next render
 	Light::SendNumOfLights(m_program);
 
 	/// Binds and Draws Renderable VAO's
 	for (const Renderable* renderable : renderables)
 	{
-		renderable->Draw(m_program, camera, projection_xform, glm::mat4(1));
+		renderable->Draw(m_program, camera, projection_xform);
 	}
 
 	// Always a good idea, when debugging at least, to check for GL errors
