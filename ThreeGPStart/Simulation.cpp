@@ -4,6 +4,8 @@
 // Initialise this as well as the renderer, returns false on error
 bool Simulation::Initialise()
 {
+	srand(0);
+
 	// Set up camera
 	m_camera = std::make_shared<Helpers::Camera>();
 	m_camera->Initialise(glm::vec3(-749.5, 1034.1, 1223.6), glm::vec3(0.5531, 0.52512, 0));

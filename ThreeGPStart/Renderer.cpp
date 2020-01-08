@@ -188,6 +188,8 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	/// Create camera ID and then Sends camera forward direction data to shader as Uniform
 	GLuint camera_direcion_id = glGetUniformLocation(m_program, "camera_direction");
 	glUniform3fv(camera_direcion_id, 1, glm::value_ptr(camera.GetLookVector()));
+
+
 	Helpers::CheckForGLError();
 	/// Creates and Gets Viewport size
 	GLint viewportDimensions[4];
